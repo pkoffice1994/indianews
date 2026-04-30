@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+{% load ad_tags %}
+{% block title %}इंडिया न्यूज़ — {{ site.site_tagline }}{% endblock %}
+
+{% block breaking %}
+{% if breaking %}
+<div class="breaking-bar">
+  <div class="brk-label">🔴 Breaking</div>
+  <div class="ticker-wrap">
+    <div class="ticker-text">
+      {% for n in breaking %}{{ n.title_hi }} &nbsp;&nbsp;•&nbsp;&nbsp;{% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container page-wrap">
+
+  <!-- TOP STORY + FEATURED ROW -->
+  {% if top_story %}
+  <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:20px;margin-bottom:28px">
+    <a href="/{{ top_story.slug }}/" class="hero-card">
+      <img src="{{ top_story.get_image }}" alt="{{ top_story.title_hi }}"
+           onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&q=80'">
+      <div class="hero-ov">
+        {% if top_story.is_breaking %}<div class="brk-tag">🔴 Breaking News</div>{% endif %}
+        <div class="cat-tag">{{ top_story.category.name }}</div>
+        <div class="hero-title">{{ top_story.title_hi }}</div>
+        {% if top_story.summary_hi %}
+        <p style="font-size:14px;color:rgba(255,255,255,.75);margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ top_story.summary_hi }}</p>
+        {% endif %}
+        <div class="hero-meta">
+          <i class="fas fa-user-edit"></i> {{ top_story.author.get_full_name|default:"India News" }}
+          &nbsp;•&nbsp; <i class="far fa-clock"></i> {{ top_story.published_at|timesince }} पहले
+          &nbsp;•&nbsp; <i class="far fa-eye"></i> {{ top_story.views|default:0 }} views
+        </div>
+      </div>
+    </a>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      {% for n in featured|slice:":3" %}
+      <a href="/{{ n.slug }}/" style="display:flex;gap:12px;background:var(--white);border:1px solid var(--border);border-radius:6px;padding:10px;color:var(--ink);transition:box-shadow .2s;flex:1"
+         onmouseover="this.style.boxShadow='var(--card-sh)'" onmouseout="this.style.boxShadow=''">
+        <img src="{{ n.get_image }}" alt=""
+             onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&q=80'"
+             style="width:95px;height:75px;object-fit:cover;border-radius:4px;flex-shrink:0">
+        <div style="overflow:hidden">
+          <div class="cat-tag" style="font-size:9px">{{ n.category.name }}</div>
+          <div style="font-size:14px;font-weight:700;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ n.title_hi }}</div>
+          <div class="nmeta" style="margin-top:4px"><i class="far fa-clock"></i> {{ n.published_at|timesince }} पहले</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- MAIN GRID + SIDEBAR -->
+  <div class="main-grid">
+    <div>
+
+      <!-- Latest News -->
+      <div class="mb30">
+        <div class="sec-head">
+          <h2>ताज़ा खबरें</h2>
+          <a href="/search/">सभी खबरें →</a>
+        </div>
+        <div class="g3">
+          {% for n in latest %}
+          <a href="/{{ n.slug }}/" class="ncard">
+            <img src="{{ n.get_image }}" alt="{{ n.title_hi }}"
+                 onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80'">
+            <div class="ncard-body">
+              <div class="cat-tag">{{ n.category.name }}</div>
+              <div class="ntitle">{{ n.title_hi }}</div>
+              <div class="nmeta">
+                <span><i class="far fa-clock"></i> {{ n.published_at|timesince }}</span>
+                <span>📖 {{ n.read_time }} min</span>
+                <span><i class="far fa-eye"></i> {{ n.views }}</span>
+              </div>
+            </div>
+          </a>
+          {% empty %}
+          <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--mid)">
+            <div style="font-size:48px;margin-bottom:12px">📰</div>
+            <h3 style="font-size:20px;margin-bottom:8px">अभी कोई खबर नहीं</h3>
+            <p style="font-size:14px">Admin panel से खबरें publish करें</p>
+            <a href="/admin/news/news/add/" style="display:inline-block;margin-top:14px;background:var(--red);color:#fff;padding:10px 24px;border-radius:4px;font-weight:700">+ खबर जोड़ें</a>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- HOME TOP AD + IN-CONTENT AD -->
+      {% ad_slot 'home_top' 'Home Top Banner (728×90)' %}
+      {% ad_slot 'in_content' 'In-Content Ad' %}
+
+      <!-- Category sections -->
+      {% for sec in cat_sections %}
+      <div class="mb30">
+        <div class="sec-head">
+          <h2 style="color:{{ sec.category.color }}">{{ sec.category.name }}</h2>
+          <a href="/category/{{ sec.category.slug }}/">सभी देखें →</a>
+        </div>
+        <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px">
+          <a href="/{{ sec.news.0.slug }}/" class="ncard">
+            <img src="{{ sec.news.0.get_image }}" alt=""
+                 onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80'"
+                 style="height:210px;width:100%;object-fit:cover">
+            <div class="ncard-body">
+              <div class="cat-tag">{{ sec.category.name }}</div>
+              <div class="ntitle" style="-webkit-line-clamp:3;font-size:17px">{{ sec.news.0.title_hi }}</div>
+              <div class="nmeta"><i class="far fa-clock"></i> {{ sec.news.0.published_at|timesince }}</div>
+            </div>
+          </a>
+          <div>
+            {% for n in sec.news|slice:"1:5" %}
+            <a href="/{{ n.slug }}/" class="sb-item">
+              <img src="{{ n.get_image }}" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=300&q=80'" alt="">
+              <div>
+                <div class="sb-ttl">{{ n.title_hi|truncatechars:65 }}</div>
+                <div class="sb-tm"><i class="far fa-clock"></i> {{ n.published_at|timesince }}</div>
+              </div>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+
+      <!-- Video News -->
+      {% if videos %}
+      <div class="mb30">
+        <div class="sec-head"><h2>📹 Video News</h2></div>
+        <div class="g4">
+          {% for n in videos %}
+          <a href="/{{ n.slug }}/" class="ncard">
+            <div style="position:relative">
+              <img src="{{ n.get_image }}" alt=""
+                   onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&q=80'"
+                   style="height:145px;width:100%;object-fit:cover">
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.65);border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center">
+                <i class="fas fa-play" style="color:#fff;font-size:13px;margin-left:3px"></i>
+              </div>
+            </div>
+            <div class="ncard-body" style="padding:10px">
+              <div class="ntitle" style="font-size:13px">{{ n.title_hi }}</div>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside>
+
+      <!-- SIDEBAR TOP AD -->
+      {% ad_slot 'sidebar_top' 'Sidebar Top (300×250)' %}
+
+      <!-- ePaper -->
+      {% if epaper_latest %}
+      <div class="sb-card mb20">
+        <div class="sb-head dark">📰 आज का E-Paper</div>
+        <div class="sb-body" style="text-align:center">
+          {% if epaper_latest.thumbnail %}
+          <img src="{{ epaper_latest.thumbnail.url }}" style="max-width:100%;border-radius:4px;margin-bottom:10px" alt="">
+          {% else %}
+          <div style="background:linear-gradient(135deg,#e60026,#ff4d6d);border-radius:6px;height:140px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;font-size:50px">🗞</div>
+          {% endif %}
+          <div style="font-weight:700;font-size:14px;margin-bottom:3px">{{ epaper_latest.title }}</div>
+          <div style="font-size:11px;color:var(--mid);margin-bottom:12px">{{ epaper_latest.publish_date }}</div>
+          <a href="/epaper/" style="display:block;background:var(--red);color:#fff;padding:9px;border-radius:4px;font-size:12px;font-weight:700">
+            <i class="fas fa-file-pdf"></i> E-Paper पढ़ें
+          </a>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Popular -->
+      <div class="sb-card mb20">
+        <div class="sb-head red">🔥 Most Popular</div>
+        <div class="sb-body">
+          {% for n in popular %}
+          <a href="/{{ n.slug }}/" class="sb-item">
+            <div style="font-size:20px;font-weight:900;color:var(--red);width:26px;flex-shrink:0;text-align:center">{{ forloop.counter }}</div>
+            <div>
+              <div class="sb-ttl">{{ n.title_hi|truncatechars:70 }}</div>
+              <div class="sb-tm"><i class="far fa-eye"></i> {{ n.views|default:0 }} views</div>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Categories -->
+      <div class="sb-card mb20">
+        <div class="sb-head dark">📂 सभी Categories</div>
+        <div class="sb-body">
+          {% for cat in nav_categories %}
+          <a href="/category/{{ cat.slug }}/"
+             style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);color:var(--ink);font-size:13px">
+            <span>{% if cat.icon %}{{ cat.icon }} {% endif %}{{ cat.name }}</span>
+            <span style="background:var(--red);color:#fff;font-size:10px;padding:1px 7px;border-radius:10px;font-weight:700">{{ cat.news.count }}</span>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Short News -->
+      {% if shorts %}
+      <div class="sb-card mb20">
+        <div class="sb-head red">⚡ Short News</div>
+        <div class="sb-body">
+          {% for s in shorts %}
+          <div style="padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;font-weight:600;line-height:1.5;color:var(--ink)">
+            <span style="color:var(--red);font-size:10px;font-weight:800;letter-spacing:.05em">●</span> {{ s.title }}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- SIDEBAR BOTTOM AD -->
+      {% ad_slot 'sidebar_bottom' 'Sidebar Bottom (300×250)' %}
+
+    </aside>
+  </div>
+</div>
+{% endblock %}

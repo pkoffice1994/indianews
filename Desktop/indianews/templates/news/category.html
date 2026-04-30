@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}{{ category.name }} | इंडिया न्यूज़{% endblock %}
+{% block content %}
+<div class="container page-wrap">
+  <div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:18px 20px;margin-bottom:22px;border-left:5px solid {{ category.color|default:'#e60026' }}">
+    <h1 style="font-size:26px;font-weight:700">{{ category.name }}{% if subcategory %} › {{ subcategory.name }}{% endif %}</h1>
+    {% if category.description %}<p style="color:var(--mid);font-size:14px;margin-top:5px">{{ category.description }}</p>{% endif %}
+    {% if category.subcategories.count > 0 %}
+    <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:7px">
+      <a href="/category/{{ category.slug }}/" style="padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;background:{% if not subcategory %}var(--red){% else %}var(--light){% endif %};color:{% if not subcategory %}#fff{% else %}var(--ink){% endif %};border:1px solid var(--border)">All</a>
+      {% for sub in category.subcategories.all %}
+      <a href="/category/{{ category.slug }}/?sub={{ sub.slug }}" style="padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;background:{% if subcategory.slug == sub.slug %}var(--red){% else %}var(--light){% endif %};color:{% if subcategory.slug == sub.slug %}#fff{% else %}var(--ink){% endif %};border:1px solid var(--border)">{{ sub.name }}</a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  <div class="main-grid">
+    <div>
+      <div class="g3">
+        {% for n in page_obj %}
+        <a href="/{{ n.slug }}/" class="ncard">
+          <img src="{{ n.get_image }}" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80'" alt="">
+          <div class="ncard-body">
+            <div class="cat-tag">{{ n.category.name }}</div>
+            <div class="ntitle">{{ n.title_hi }}</div>
+            <div class="nmeta"><i class="far fa-clock"></i> {{ n.published_at|timesince }}</div>
+          </div>
+        </a>
+        {% empty %}
+        <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--mid)">इस category में अभी कोई खबर नहीं।</div>
+        {% endfor %}
+      </div>
+      {% if page_obj.has_other_pages %}
+      <div class="pagination">
+        {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">‹ पिछला</a>{% endif %}
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}<span class="current">{{ num }}</span>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}<a href="?page={{ num }}">{{ num }}</a>{% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">अगला ›</a>{% endif %}
+      </div>
+      {% endif %}
+    </div>
+    <aside>
+      <div class="sb-card">
+        <div class="sb-head dark">📂 All Categories</div>
+        <div class="sb-body">
+          {% for cat in nav_categories %}
+          <a href="/category/{{ cat.slug }}/" style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);color:var(--ink);font-size:13px;font-weight:{% if cat.slug == category.slug %}700{% else %}400{% endif %}">
+            <span>{{ cat.name }}</span>
+            <span style="background:var(--red);color:#fff;font-size:10px;padding:1px 7px;border-radius:10px">{{ cat.news.count }}</span>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+{% endblock %}

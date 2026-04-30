@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+{% load ad_tags %}
+{% block title %}{{ article.title_hi }} | इंडिया न्यूज़{% endblock %}
+{% block meta_desc %}{{ article.summary_hi|default:article.content_hi|truncatechars:155 }}{% endblock %}
+
+{% block content %}
+<div class="container page-wrap">
+  <div class="main-grid">
+    <article>
+
+      <!-- Breadcrumb -->
+      <nav style="font-size:12px;color:var(--mid);margin-bottom:14px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <a href="/" style="color:var(--red)">Home</a> <span>›</span>
+        {% if article.category %}<a href="/category/{{ article.category.slug }}/" style="color:var(--red)">{{ article.category.name }}</a><span>›</span>{% endif %}
+        <span>{{ article.title_hi|truncatechars:45 }}</span>
+      </nav>
+
+      {% if article.category %}<div class="cat-tag" style="font-size:12px;margin-bottom:10px">{{ article.category.name }}</div>{% endif %}
+
+      <h1 style="font-family:'Tiro Devanagari Hindi',serif;font-size:31px;font-weight:700;line-height:1.45;margin-bottom:14px;color:var(--ink)">
+        {% if article.is_breaking %}<span class="brk-tag" style="font-size:10px;vertical-align:middle">Breaking</span> {% endif %}
+        {{ article.title_hi }}
+      </h1>
+
+      <!-- Meta -->
+      <div style="display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--mid);padding-bottom:16px;border-bottom:1.5px solid var(--border);margin-bottom:18px;align-items:center">
+        <span style="display:flex;align-items:center;gap:5px">
+          <span style="width:28px;height:28px;background:var(--red);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700">
+            {{ article.author.get_full_name|default:"IN"|slice:":2"|upper }}
+          </span>
+          <strong style="color:var(--ink)">{{ article.author.get_full_name|default:"India News Desk" }}</strong>
+        </span>
+        <span><i class="far fa-calendar-alt" style="color:var(--red)"></i> {{ article.published_at|date:"d M Y, H:i" }}</span>
+        <span><i class="far fa-clock"></i> {{ article.published_at|timesince }} पहले</span>
+        <span><i class="far fa-eye"></i> {{ article.views }} views</span>
+        <span>📖 {{ article.read_time }} min read</span>
+        {% if article.location %}<span><i class="fas fa-map-marker-alt" style="color:var(--red)"></i> {{ article.location }}</span>{% endif %}
+      </div>
+
+      <!-- Featured Image -->
+      {% if article.get_image %}
+      <figure style="margin-bottom:22px">
+        <img src="{{ article.get_image }}" alt="{{ article.title_hi }}"
+             style="width:100%;max-height:480px;object-fit:cover;border-radius:8px"
+             onerror="this.style.display='none'">
+        {% if article.image_caption %}
+        <figcaption style="font-size:12px;color:var(--mid);margin-top:6px;text-align:center;font-style:italic">{{ article.image_caption }}</figcaption>
+        {% endif %}
+      </figure>
+      {% endif %}
+
+      <!-- Summary box -->
+      {% if article.summary_hi %}
+      <div style="background:linear-gradient(135deg,#fff5f5,#fff8f8);border-left:4px solid var(--red);padding:14px 18px;border-radius:0 8px 8px 0;margin-bottom:22px;font-size:16px;font-weight:600;line-height:1.7;color:var(--ink)">
+        {{ article.summary_hi }}
+      </div>
+      {% endif %}
+
+      <!-- Video -->
+      {% if article.video_url %}
+      <div style="margin-bottom:22px;border-radius:8px;overflow:hidden;box-shadow:var(--card-sh)">
+        <div style="position:relative;padding-bottom:56.25%;height:0">
+          <iframe src="{{ article.video_url }}" style="position:absolute;inset:0;width:100%;height:100%" frameborder="0" allowfullscreen></iframe>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Article content -->
+      <div style="font-size:17px;line-height:1.95;color:var(--ink);font-family:'Tiro Devanagari Hindi',serif">
+        {% for para in article.content_hi.splitlines %}
+          {% if para.strip %}
+          <p style="margin-bottom:1.4em">{{ para.strip }}</p>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <!-- English content toggle -->
+      {% if article.content_en %}
+      <div style="margin-top:24px">
+        <button onclick="document.getElementById('en-body').style.display=document.getElementById('en-body').style.display==='none'?'block':'none'"
+                style="background:var(--light);border:1px solid var(--border);padding:9px 18px;border-radius:4px;font-size:13px;cursor:pointer;font-family:var(--hf);color:var(--ink)">
+          🌐 Read in English / अंग्रेज़ी में पढ़ें
+        </button>
+        <div id="en-body" style="display:none;margin-top:16px;padding:20px;background:var(--light);border-radius:8px;border:1px solid var(--border);font-size:16px;line-height:1.8;font-family:'DM Sans',sans-serif">
+          <h2 style="font-size:22px;font-weight:700;margin-bottom:14px">{{ article.title_en }}</h2>
+          {% for para in article.content_en.splitlines %}
+            {% if para.strip %}<p style="margin-bottom:1.2em">{{ para.strip }}</p>{% endif %}
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- IN-CONTENT AD (after article) -->
+      {% ad_slot 'in_content' 'In-Content Ad' %}
+
+      <!-- Tags -->
+      {% if article.tags.all %}
+      <div style="margin:22px 0;display:flex;flex-wrap:wrap;gap:7px;align-items:center">
+        <span style="font-size:12px;color:var(--mid);font-weight:700;margin-right:4px">🏷 Tags:</span>
+        {% for tag in article.tags.all %}
+        <a href="/tag/{{ tag.slug }}/"
+           style="background:var(--light);border:1px solid var(--border);padding:4px 12px;border-radius:20px;font-size:12px;color:var(--ink);transition:all .15s"
+           onmouseover="this.style.background='var(--red)';this.style.color='#fff';this.style.borderColor='var(--red)'"
+           onmouseout="this.style.background='var(--light)';this.style.color='var(--ink)';this.style.borderColor='var(--border)'">{{ tag.name }}</a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Share Panel -->
+      <div style="background:var(--light);border:1px solid var(--border);border-radius:8px;padding:18px 20px;margin:22px 0">
+        <h3 style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--mid);margin-bottom:12px">
+          इस खबर को शेयर करें
+        </h3>
+        <div class="share-row">
+          <a class="shr-btn sh-fb" href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank"><i class="fab fa-facebook-f"></i> Facebook</a>
+          <a class="shr-btn sh-wa" href="https://wa.me/?text={{ article.title_hi|urlencode }}%20{{ request.build_absolute_uri|urlencode }}" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+          <a class="shr-btn sh-tw" href="https://twitter.com/intent/tweet?text={{ article.title_hi|urlencode }}&url={{ request.build_absolute_uri|urlencode }}" target="_blank"><i class="fab fa-x-twitter"></i> Twitter</a>
+          <a class="shr-btn sh-tg" href="https://t.me/share/url?url={{ request.build_absolute_uri|urlencode }}&text={{ article.title_hi|urlencode }}" target="_blank"><i class="fab fa-telegram-plane"></i> Telegram</a>
+          <button class="shr-btn sh-cp" onclick="navigator.clipboard.writeText(window.location.href);this.textContent='✅ Copied!'"><i class="far fa-copy"></i> Copy Link</button>
+        </div>
+      </div>
+
+      <!-- Comments -->
+      {% if site.enable_comments and article.allow_comments %}
+      <div id="comments" style="margin-top:32px">
+        <div class="sec-head"><h2>💬 टिप्पणियाँ ({{ comments.count }})</h2></div>
+
+        <div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:22px">
+          <h4 style="font-size:15px;font-weight:700;margin-bottom:14px">अपनी राय दें</h4>
+          <form method="POST" action="{{ request.path }}#comments">
+            {% csrf_token %}
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+              <input type="text" name="name" placeholder="आपका नाम *" required
+                     style="padding:10px 12px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--hf);font-size:14px;background:var(--bg);color:var(--ink);outline:none">
+              <input type="email" name="email" placeholder="Email (optional)"
+                     style="padding:10px 12px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--hf);font-size:14px;background:var(--bg);color:var(--ink);outline:none">
+            </div>
+            <textarea name="content" rows="4" placeholder="अपनी राय यहाँ लिखें..." required
+                      style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--hf);font-size:14px;resize:vertical;background:var(--bg);color:var(--ink);outline:none;margin-bottom:12px"></textarea>
+            <button type="submit" style="background:var(--red);color:#fff;padding:10px 28px;border:none;border-radius:4px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--hf)">
+              Submit करें →
+            </button>
+            <p style="font-size:11px;color:var(--mid);margin-top:8px">* Comments review के बाद publish होते हैं</p>
+          </form>
+        </div>
+
+        {% for c in comments %}
+        <div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:10px">
+          <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">
+            <div style="width:38px;height:38px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;flex-shrink:0">
+              {{ c.name|slice:":1"|upper }}
+            </div>
+            <div>
+              <div style="font-weight:700;font-size:14px">{{ c.name }}</div>
+              <div style="font-size:11px;color:var(--mid)"><i class="far fa-clock"></i> {{ c.created_at|timesince }} पहले</div>
+            </div>
+          </div>
+          <p style="font-size:14px;line-height:1.65;color:var(--ink)">{{ c.content }}</p>
+        </div>
+        {% empty %}
+        <div style="text-align:center;padding:30px;color:var(--mid);font-size:14px">
+          <i class="far fa-comment" style="font-size:30px;margin-bottom:10px;display:block"></i>
+          अभी कोई comment नहीं है। पहले comment करें!
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+    </article>
+
+    <!-- SIDEBAR -->
+    <aside>
+      <!-- SIDEBAR TOP AD -->
+      {% ad_slot 'sidebar_top' 'Sidebar Top (300×250)' %}
+
+      {% if related %}
+      <div class="sb-card mb20">
+        <div class="sb-head red">📌 Related News</div>
+        <div class="sb-body">
+          {% for n in related %}
+          <a href="/{{ n.slug }}/" class="sb-item">
+            <img src="{{ n.get_image }}" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=300&q=80'" alt="">
+            <div>
+              <div class="cat-tag" style="font-size:9px">{{ n.category.name }}</div>
+              <div class="sb-ttl">{{ n.title_hi|truncatechars:70 }}</div>
+              <div class="sb-tm"><i class="far fa-clock"></i> {{ n.published_at|timesince }}</div>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="sb-card mb20">
+        <div class="sb-head dark">📂 Categories</div>
+        <div class="sb-body">
+          {% for cat in nav_categories %}
+          <a href="/category/{{ cat.slug }}/"
+             style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);color:var(--ink);font-size:13px">
+            <span>{{ cat.name }}</span>
+            <span style="background:var(--red);color:#fff;font-size:10px;padding:1px 7px;border-radius:10px">{{ cat.news.count }}</span>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+{% endblock %}
