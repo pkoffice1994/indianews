@@ -1,5 +1,0 @@
-flask
-feedparser
-requests
-gunicorn
-python-dotenv
