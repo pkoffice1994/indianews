@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}खोज: {{ query }} | इंडिया न्यूज़{% endblock %}
+{% block content %}
+<div class="container page-wrap">
+  <div class="main-grid">
+    <div>
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:22px">
+        <form action="/search/" method="GET" style="display:flex;border:1.5px solid var(--border);border-radius:6px;overflow:hidden">
+          <input type="text" name="q" value="{{ query }}" placeholder="खबर खोजें..."
+                 style="flex:1;padding:12px 16px;border:none;background:transparent;font-family:var(--hf);font-size:15px;color:var(--ink);outline:none">
+          <button type="submit" style="padding:12px 20px;background:var(--red);color:#fff;border:none;cursor:pointer;font-size:15px"><i class="fas fa-search"></i></button>
+        </form>
+        {% if query %}
+        <p style="margin-top:10px;font-size:13px;color:var(--mid)">
+          "<strong>{{ query }}</strong>" — <strong>{{ page_obj.paginator.count }}</strong> results
+        </p>
+        {% endif %}
+      </div>
+      {% if query %}
+      <div class="g3">
+        {% for n in page_obj %}
+        <a href="/{{ n.slug }}/" class="ncard">
+          <img src="{{ n.get_image }}" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80'" alt="">
+          <div class="ncard-body">
+            <div class="cat-tag">{{ n.category.name }}</div>
+            <div class="ntitle">{{ n.title_hi }}</div>
+            <div class="nmeta"><i class="far fa-clock"></i> {{ n.published_at|timesince }}</div>
+          </div>
+        </a>
+        {% empty %}
+        <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--mid)">
+          <i class="fas fa-search" style="font-size:36px;margin-bottom:12px;display:block;opacity:.3"></i>
+          <h3>कोई खबर नहीं मिली</h3>
+          <p style="margin-top:8px">दूसरे keywords से खोजें।</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% if page_obj.has_other_pages %}
+      <div class="pagination">
+        {% if page_obj.has_previous %}<a href="?q={{ query }}&page={{ page_obj.previous_page_number }}">‹</a>{% endif %}
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}<span class="current">{{ num }}</span>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}<a href="?q={{ query }}&page={{ num }}">{{ num }}</a>{% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}<a href="?q={{ query }}&page={{ page_obj.next_page_number }}">›</a>{% endif %}
+      </div>
+      {% endif %}
+      {% endif %}
+    </div>
+    <aside>
+      <div class="sb-card">
+        <div class="sb-head dark">📂 Categories</div>
+        <div class="sb-body">
+          {% for cat in nav_categories %}
+          <a href="/category/{{ cat.slug }}/" style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);color:var(--ink);font-size:13px">
+            <span>{{ cat.name }}</span>
+            <span style="background:var(--red);color:#fff;font-size:10px;padding:1px 7px;border-radius:10px">{{ cat.news.count }}</span>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+{% endblock %}
