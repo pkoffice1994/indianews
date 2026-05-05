@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>India News CMS</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0d0d0d;--paper:#f5f0e8;--white:#fff;--accent:#c0392b;
+  --green:#1a7a4a;--mid:#6b6358;--border:#d4cfc5;--sidebar-w:360px;
+  --blue:#2980b9;--purple:#7f6df2;--orange:#e67e22
+}
+body{font-family:'DM Sans',sans-serif;background:linear-gradient(180deg,#eef2f9 0%,#f8fafc 100%);color:var(--ink);min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:#060606;color:#fff;display:flex;flex-direction:column;padding:0;z-index:100;overflow-y:auto;border-right:1px solid #1d1d1d}
+.sb-brand{padding:18px 16px;border-bottom:1px solid #1f1f1f;background:linear-gradient(90deg,#141414,#0b0b0b)}
+.sb-logo{font-family:'DM Sans',sans-serif;font-size:20px;font-weight:700;text-transform:lowercase}
+.sb-tag{font-size:11px;color:#c8c8c8;margin-top:3px}
+.module-group{padding:16px 14px 8px;border-bottom:1px solid #111}
+.module-title{font-size:18px;font-weight:700;color:#fff;margin-bottom:8px;letter-spacing:.01em}
+.module-link{display:flex;align-items:center;gap:10px;padding:10px 8px;color:#bfc4cf;text-decoration:none;font-size:19px;font-weight:500;border-radius:6px}
+.module-link:hover{background:#141414;color:#fff}
+.module-link.active{background:#f10091;color:#fff}
+.module-link .dot{width:7px;height:7px;border-radius:50%;background:#5b6476;display:inline-block}
+.sb-section{padding:14px 10px}
+.sb-label{font-size:11px;letter-spacing:.04em;text-transform:lowercase;color:#9ba3b7;padding:0 8px;margin-bottom:4px}
+.nav-link{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:6px;font-size:14px;font-weight:600;color:#c5cde0;text-decoration:none;transition:all 0.15s;margin-bottom:2px}
+.nav-link:hover,.nav-link.active{background:#18203a;color:#fff}
+.website-btn{display:flex;align-items:center;justify-content:center;gap:8px;margin:10px 14px;padding:10px 12px;background:#1d2d57;color:#fff;text-decoration:none;border-radius:6px;font-size:12px;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;transition:background 0.15s}
+.website-btn:hover{background:#2a3d74}
+.gen-section{padding:14px;border-top:1px solid rgba(255,255,255,0.1);margin-top:auto}
+.gen-label{font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:8px;padding:0 2px}
+.gen-source-select{
+  width:100%;padding:8px 10px;background:#1e1e1e;color:#e0e0e0;
+  border:1px solid rgba(255,255,255,0.15);border-radius:5px;
+  font-family:'DM Sans',sans-serif;font-size:12px;
+  outline:none;margin-bottom:10px;cursor:pointer;
+  appearance:auto
+}
+.gen-source-select optgroup{color:#888;font-size:11px}
+.gen-source-select option{background:#1e1e1e;color:#e0e0e0}
+.gen-fetch-btn{
+  display:block;width:100%;padding:10px 12px;
+  background:var(--accent);color:#fff;
+  font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  text-align:center;text-decoration:none;border-radius:5px;
+  transition:background 0.15s;cursor:pointer
+}
+.gen-fetch-btn:hover{background:#a93226}
+.gen-note{
+  margin-top:8px;font-size:10px;color:rgba(255,255,255,0.3);
+  line-height:1.5;padding:0 2px
+}
+.logout-link{display:block;padding:12px 16px;font-size:12px;color:rgba(255,255,255,0.3);text-decoration:none;text-align:center;border-top:1px solid rgba(255,255,255,0.07)}
+.logout-link:hover{color:var(--accent)}
+
+/* MAIN */
+.main{margin-left:var(--sidebar-w);min-height:100vh}
+.topbar{background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid #dde1e7;padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 8px 24px rgba(34,50,84,0.08)}
+.topbar-title{font-family:'Playfair Display',serif;font-size:19px;font-weight:700}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.date-tag{font-size:11px;color:var(--mid)}
+.live-badge{background:#ecfaf3;color:var(--green);border:1px solid #a8dfc0;padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border-radius:20px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+
+/* FLASHES */
+.flashes{padding:0 28px;margin-top:14px}
+.flash{padding:11px 16px;font-size:13px;border-radius:6px;margin-bottom:6px;border-left:3px solid;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.flash-success{background:#f0faf4;border-color:var(--green);color:var(--green)}
+.flash-warning{background:#fff8f0;border-color:var(--orange);color:#c0610f}
+.flash-info{background:#f0f4ff;border-color:var(--blue);color:#1a5f8a}
+
+.content{padding:20px 28px 48px}
+.quick-shortcuts{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.shortcut-card{background:#fff;border:1px solid #eaedf0;border-radius:14px;padding:16px;box-shadow:0 6px 20px rgba(35,48,84,0.06)}
+.shortcut-kicker{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#7d869c;margin-bottom:6px}
+.shortcut-title{font-size:18px;font-weight:700;color:#13203f;margin-bottom:8px}
+.shortcut-text{font-size:12px;line-height:1.6;color:#6d7589;margin-bottom:12px}
+.shortcut-card a{display:inline-block;padding:8px 12px;border-radius:999px;background:#eef2ff;color:#243c78;font-size:12px;font-weight:700;text-decoration:none}
+
+/* STAT CARDS - like screenshot */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat-card{background:var(--white);border-radius:10px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);border:1px solid #eaedf0}
+.stat-icon{width:48px;height:48px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.stat-icon.blue{background:#e8f1fb}
+.stat-icon.green{background:#e8f8f0}
+.stat-icon.orange{background:#fff3e8}
+.stat-icon.red{background:#fdf0ef}
+.stat-icon.purple{background:#f0eeff}
+.stat-icon.teal{background:#e8f8f8}
+.stat-info{}
+.stat-label{font-size:12px;color:#888;font-weight:500;margin-bottom:2px}
+.stat-value{font-size:26px;font-weight:700;font-family:'Playfair Display',serif;line-height:1}
+
+/* CHARTS ROW */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.chart-card{background:var(--white);border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.07);border:1px solid #eaedf0}
+.chart-card h3{font-size:14px;font-weight:600;color:#444;margin-bottom:16px}
+.chart-wrap{position:relative;height:220px;display:flex;align-items:center;justify-content:center}
+.chart-legend{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#555}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* FILTER */
+.filter-bar{display:flex;gap:6px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.filter-label{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--mid);margin-right:4px;font-weight:600}
+.filter-btn{padding:5px 14px;border:1.5px solid #dde1e7;background:transparent;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--mid);text-decoration:none;cursor:pointer;transition:all 0.15s;border-radius:20px}
+.filter-btn:hover,.filter-btn.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;background:var(--white);border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.07);border:1px solid #eaedf0}
+thead tr{background:#f7f8fa}
+th{padding:11px 14px;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-weight:700;text-align:left;color:#666;border-bottom:1px solid #eaedf0}
+td{padding:11px 14px;font-size:13px;border-bottom:1px solid #f0f2f5;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+.title-cell{font-weight:600;font-size:13px;line-height:1.4;max-width:220px}
+.hindi-cell{font-size:11px;color:var(--mid);margin-top:2px;line-height:1.3}
+.content-cell{font-size:11px;color:#888;line-height:1.5;max-width:200px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cat-badge{display:inline-block;background:var(--ink);color:#fff;padding:2px 8px;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;border-radius:20px;margin-bottom:3px}
+.src-badge{display:inline-block;background:#f0f2f5;border:1px solid #dde1e7;padding:2px 7px;font-size:10px;color:var(--mid);border-radius:20px}
+.status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;border-radius:20px}
+.status-pending{background:#fff8ec;color:#c0610f;border:1px solid #f5c886}
+.status-approved{background:#ecfaf3;color:var(--green);border:1px solid #a8dfc0}
+.status-rejected{background:#fdf0ef;color:var(--accent);border:1px solid #f5b0aa}
+.views-badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--blue)}
+.thumb{width:56px;height:44px;object-fit:cover;border-radius:5px}
+.ts{font-size:10px;color:#aaa;white-space:nowrap}
+
+.action-btns{display:flex;gap:4px;flex-wrap:wrap}
+.action-btn{padding:4px 9px;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;text-decoration:none;border-radius:4px;transition:all 0.15s;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;white-space:nowrap}
+.btn-approve{background:#ecfaf3;color:var(--green);border:1px solid #a8dfc0}
+.btn-approve:hover{background:var(--green);color:#fff}
+.btn-reject{background:#fdf0ef;color:var(--accent);border:1px solid #f5b0aa}
+.btn-reject:hover{background:var(--accent);color:#fff}
+.btn-delete{background:#f0f2f5;color:#888;border:1px solid #dde1e7}
+.btn-delete:hover{background:#e74c3c;color:#fff;border-color:#e74c3c}
+.btn-view{background:#e8f1fb;color:var(--blue);border:1px solid #b8d4ef}
+.btn-view:hover{background:var(--blue);color:#fff}
+.btn-edit{background:#f0eeff;color:var(--purple);border:1px solid #c8bff8}
+.btn-edit:hover{background:var(--purple);color:#fff}
+
+.share-row{margin-top:5px;display:flex;gap:3px;flex-wrap:wrap}
+.sh-sm{padding:3px 7px;font-size:10px;font-weight:700;text-decoration:none;border-radius:3px;font-family:'DM Sans',sans-serif}
+
+.empty-state{text-align:center;padding:60px 24px;color:var(--mid);background:var(--white);border-radius:10px;border:1px solid #eaedf0}
+.empty-state h3{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:8px;color:var(--ink)}
+.empty-state p{font-size:13px;margin-bottom:18px}
+.empty-state a{display:inline-block;padding:10px 24px;background:var(--ink);color:#fff;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;text-decoration:none;border-radius:4px}
+
+/* EDIT MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-box{background:#fff;border-radius:12px;width:100%;max-width:740px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);animation:modalIn 0.25s ease}
+@keyframes modalIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.modal-head{background:var(--ink);color:#fff;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-radius:12px 12px 0 0}
+.modal-head h2{font-family:'Playfair Display',serif;font-size:19px;font-weight:700}
+.modal-close{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;line-height:1;opacity:0.7}
+.modal-close:hover{opacity:1}
+.modal-body{padding:24px}
+.field-group{margin-bottom:18px}
+.field-label{display:block;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#888;margin-bottom:7px}
+.field-input{width:100%;padding:9px 12px;border:1.5px solid #dde1e7;background:#fafbfc;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);outline:none;transition:border-color 0.2s;border-radius:6px;resize:vertical}
+.field-input:focus{border-color:var(--purple);background:#fff}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.modal-foot{padding:14px 24px;border-top:1px solid #eaedf0;display:flex;gap:10px;justify-content:flex-end;background:#f7f8fa;border-radius:0 0 12px 12px}
+
+/* IMAGE UPLOAD AREA */
+.img-upload-tabs{display:flex;gap:0;margin-bottom:12px;border:1.5px solid #dde1e7;border-radius:6px;overflow:hidden}
+.img-tab{flex:1;padding:8px;font-size:12px;font-weight:600;text-align:center;cursor:pointer;background:#f7f8fa;border:none;font-family:'DM Sans',sans-serif;transition:all 0.15s;color:#888}
+.img-tab.active{background:var(--purple);color:#fff}
+.img-panel{display:none}
+.img-panel.active{display:block}
+.drop-zone{border:2px dashed #c8bff8;border-radius:8px;padding:28px 20px;text-align:center;cursor:pointer;transition:all 0.2s;background:#fafbff}
+.drop-zone:hover,.drop-zone.dragover{border-color:var(--purple);background:#f0eeff}
+.drop-zone p{font-size:13px;color:#888;margin-top:8px}
+.drop-zone .drop-icon{font-size:32px}
+.img-preview-box{margin-top:10px}
+.img-preview-box img{width:100%;max-height:160px;object-fit:cover;border-radius:6px;border:1px solid #dde1e7;display:none}
+.img-preview-box img.show{display:block}
+
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .main{margin-left:0}
+  .quick-shortcuts{grid-template-columns:repeat(2,1fr)}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .charts-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo">Dashboard</div>
+    <div class="sb-tag">Professional News CMS</div>
+  </div>
+  <a href="/news" target="_blank" class="website-btn">View Live Website</a>
+
+  <div class="module-group">
+    <div class="module-title">News Management</div>
+    <a href="/manage/category" class="module-link"><span class="dot"></span>Categories</a>
+    <a href="/manage/subcategory" class="module-link"><span class="dot"></span>Subcategories</a>
+    <a href="/manage/tag" class="module-link"><span class="dot"></span>Tag Master</a>
+    <a href="/dashboard" class="module-link active"><span class="dot"></span>All News</a>
+    <a href="/manage/short" class="module-link"><span class="dot"></span>Shorts</a>
+  </div>
+
+  <div class="module-group">
+    <div class="module-title">Homepage</div>
+    <a href="/manage/featured_section" class="module-link"><span class="dot"></span>Featured Section</a>
+    <a href="/manage/ad_spaces" class="module-link"><span class="dot"></span>Ad Spaces</a>
+  </div>
+
+  <div class="module-group">
+    <div class="module-title">User & Moderation</div>
+    <a href="/manage/user" class="module-link"><span class="dot"></span>Users</a>
+    <a href="/dashboard" class="module-link"><span class="dot"></span>Comments</a>
+    <a href="/manage/comment_flag" class="module-link"><span class="dot"></span>Comment Flags</a>
+    <a href="/manage/send_notification" class="module-link"><span class="dot"></span>Notifications</a>
+  </div>
+
+  <div class="module-group">
+    <div class="module-title">Content Pages</div>
+    <a href="/manage/pages" class="module-link"><span class="dot"></span>Static Pages</a>
+  </div>
+
+  <div class="module-group">
+    <div class="module-title">Team Management</div>
+    <a href="/manage/roles" class="module-link"><span class="dot"></span>Roles</a>
+    {% if role == 'admin' %}
+    <a href="/staff" class="module-link"><span class="dot"></span>Staff Accounts</a>
+    {% else %}
+    <a href="javascript:void(0)" class="module-link"><span class="dot"></span>Staff Accounts</a>
+    {% endif %}
+  </div>
+
+  <div class="module-group">
+    <div class="module-title">System Configuration</div>
+    <a href="/manage/system_setting" class="module-link"><span class="dot"></span>System Settings</a>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-label">Quick Actions</div>
+    <a href="/dashboard?filter=pending" class="nav-link">Pending Review</a>
+    <a href="/dashboard?filter=approved" class="nav-link">Published</a>
+    <a href="/dashboard?filter=rejected" class="nav-link">Rejected</a>
+    <a href="/submit" class="nav-link" style="color:#fff;background:#1a7a4a;margin-top:6px;border-radius:6px">✍️ Submit / Write Article</a>
+  </div>
+  {% if role == 'admin' %}
+  <div class="gen-section">
+
+    <!-- Source Picker -->
+    <div class="gen-label">Fetch News Feed</div>
+    <select id="sourceSelect" class="gen-source-select">
+      <optgroup label="🇬🇧 English News">
+        <option value="India">🇮🇳 India (Google)</option>
+        <option value="World">🌍 World (Google)</option>
+        <option value="Technology">💻 Technology</option>
+        <option value="Business">💼 Business</option>
+        <option value="Sports">🏏 Sports</option>
+        <option value="Politics">🏛️ Politics</option>
+      </optgroup>
+      <optgroup label="📰 English Channels">
+        <option value="TOI-India">TOI - India</option>
+        <option value="TOI-World">TOI - World</option>
+        <option value="TOI-Sports">TOI - Sports</option>
+        <option value="TOI-Business">TOI - Business</option>
+        <option value="HT-India">Hindustan Times - India</option>
+        <option value="HT-World">Hindustan Times - World</option>
+        <option value="HT-Sports">Hindustan Times - Sports</option>
+        <option value="NDTV-India">NDTV - India</option>
+        <option value="NDTV-World">NDTV - World</option>
+        <option value="NDTV-Sports">NDTV - Sports</option>
+        <option value="NDTV-Tech">NDTV - Tech</option>
+      </optgroup>
+      <optgroup label="🇮🇳 Hindi News">
+        <option value="Hindi-India">Google Hindi - India</option>
+        <option value="Hindi-Sports">Google Hindi - Sports</option>
+        <option value="Hindi-Biz">Google Hindi - Business</option>
+      </optgroup>
+      <optgroup label="📺 Hindi Channels">
+        <option value="AajTak-India">Aaj Tak - India</option>
+        <option value="AajTak-Sports">Aaj Tak - Sports</option>
+        <option value="AajTak-World">Aaj Tak - World</option>
+        <option value="Bhaskar-India">Dainik Bhaskar - India</option>
+        <option value="Bhaskar-Sports">Dainik Bhaskar - Sports</option>
+        <option value="Bhaskar-Biz">Dainik Bhaskar - Business</option>
+        <option value="Bhaskar-Tech">Dainik Bhaskar - Tech</option>
+        <option value="NBT-India">Navbharat Times - India</option>
+        <option value="NBT-Sports">Navbharat Times - Sports</option>
+        <option value="NBT-Biz">Navbharat Times - Business</option>
+        <option value="Jagran-India">Jagran - India</option>
+        <option value="Jagran-Sports">Jagran - Sports</option>
+        <option value="Jagran-World">Jagran - World</option>
+      </optgroup>
+    </select>
+
+    <a id="fetchBtn" href="#" class="gen-fetch-btn" onclick="doFetch(event)">
+      Fetch Latest News
+    </a>
+
+    <div class="gen-note">
+      Auto article body, compact summary and 3 strong tags will be prepared.
+    </div>
+  </div>
+  {% endif %}
+  <a href="/logout" class="logout-link">Sign Out</a>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title">Editorial Dashboard</div>
+    <div class="topbar-right">
+      <span class="live-badge">● LIVE</span>
+      <span class="date-tag" id="currentDate"></span>
+      <span class="date-tag">👤 {{ username }} <span style="background:#e8f1fb;color:var(--blue);padding:1px 6px;border-radius:10px;font-size:9px;font-weight:700;text-transform:uppercase">{{ role }}</span></span>
+    </div>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flashes">
+      {% for cat, msg in messages %}<div class="flash flash-{{ cat }}">{{ msg }}</div>{% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <div class="content">
+    {% if role == 'admin' %}
+    <div class="quick-shortcuts">
+      <div class="shortcut-card">
+        <div class="shortcut-kicker">Ads</div>
+        <div class="shortcut-title">Ad Spaces Upload</div>
+        <div class="shortcut-text">Open the dedicated page to add banner images, target links, and ad placement locations.</div>
+        <a href="/manage/ad_spaces">Open Ad Manager</a>
+      </div>
+      <div class="shortcut-card">
+        <div class="shortcut-kicker">Homepage</div>
+        <div class="shortcut-title">Featured Section</div>
+        <div class="shortcut-text">Manage which stories or blocks are highlighted on the homepage.</div>
+        <a href="/manage/featured_section">Manage Featured</a>
+      </div>
+      <div class="shortcut-card">
+        <div class="shortcut-kicker">Pages</div>
+        <div class="shortcut-title">Static Pages</div>
+        <div class="shortcut-text">Maintain About Us, Contact Us, and future CMS pages from here.</div>
+        <a href="/manage/pages">Open Pages</a>
+      </div>
+      <div class="shortcut-card">
+        <div class="shortcut-kicker">Users</div>
+        <div class="shortcut-title">Roles & Staff</div>
+        <div class="shortcut-text">Direct shortcuts to roles, staff accounts, and permission settings.</div>
+        <a href="/manage/roles">Open Roles</a>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- STATS CARDS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon blue">📰</div>
+        <div class="stat-info"><div class="stat-label">Total Articles</div><div class="stat-value">{{ stats.total }}</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon orange">⏳</div>
+        <div class="stat-info"><div class="stat-label">Pending Review</div><div class="stat-value">{{ stats.pending }}</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">✅</div>
+        <div class="stat-info"><div class="stat-label">Published Live</div><div class="stat-value">{{ stats.approved }}</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon purple">👁</div>
+        <div class="stat-info"><div class="stat-label">Total Views</div><div class="stat-value">{{ stats.total_views }}</div></div>
+      </div>
+    </div>
+
+    <!-- CHARTS -->
+    {% if role == 'admin' %}
+    <div class="charts-row">
+      <!-- Category Wise -->
+      <div class="chart-card">
+        <h3>📊 Category Wise News</h3>
+        <div class="chart-wrap">
+          <canvas id="catChart"></canvas>
+        </div>
+        <div class="chart-legend" id="catLegend"></div>
+      </div>
+      <!-- Country Wise -->
+      <div class="chart-card">
+        <h3>🌍 Viewer Location Wise</h3>
+        <div class="chart-wrap">
+          <canvas id="countryChart"></canvas>
+        </div>
+        <div class="chart-legend" id="countryLegend"></div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- FILTER + TABLE -->
+    <div class="filter-bar">
+      <span class="filter-label">Filter:</span>
+      <a href="/dashboard?filter=all" class="filter-btn {% if filter=='all' %}active{% endif %}">All</a>
+      <a href="/dashboard?filter=pending" class="filter-btn {% if filter=='pending' %}active{% endif %}">Pending</a>
+      <a href="/dashboard?filter=approved" class="filter-btn {% if filter=='approved' %}active{% endif %}">Published</a>
+      <a href="/dashboard?filter=rejected" class="filter-btn {% if filter=='rejected' %}active{% endif %}">Rejected</a>
+    </div>
+
+    {% if news %}
+    <table>
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Title (EN / HI)</th>
+          <th>Summary</th>
+          <th>Category</th>
+          <th>Top 5</th>
+          <th>Views</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for n in news %}
+        <tr>
+          <td>
+            {% if n.image_url %}
+            <img class="thumb" src="{{ n.image_url }}" alt="">
+            {% else %}
+            <div style="width:56px;height:44px;background:#f0f2f5;border:1px solid #dde1e7;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:16px">📰</div>
+            {% endif %}
+          </td>
+          <td>
+            <div class="title-cell">
+              {% if n.category.startswith('Hindi-') %}
+                {{ n.hindi_title or n.title or '(No title)' }}
+              {% else %}
+                {{ n.title or n.hindi_title or '(No title)' }}
+              {% endif %}
+            </div>
+            {% if n.hindi_title and not n.category.startswith('Hindi-') %}
+              <div class="hindi-cell">{{ n.hindi_title }}</div>
+            {% elif n.title and n.category.startswith('Hindi-') %}
+              <div class="hindi-cell">{{ n.title }}</div>
+            {% endif %}
+          </td>
+          <td><div class="content-cell">{{ get_dashboard_summary(n) }}</div></td>
+          <td>
+            <div class="cat-badge">{{ n.category }}</div><br>
+            <span class="src-badge">{{ n.source }}</span>
+            {% if n.tags %}
+            <div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:3px">
+              {% for tag in n.tags.split(',') %}{% if tag.strip() %}
+              <span style="background:#f0eeff;color:var(--purple);border:1px solid #c8bff8;padding:1px 6px;font-size:9px;border-radius:20px;white-space:nowrap">{{ tag.strip() }}</span>
+              {% endif %}{% endfor %}
+            </div>
+            {% endif %}
+          </td>
+          <td>
+            {% if n.top_pick %}
+            <span class="status-badge status-approved">⭐ Top 5</span>
+            {% elif n.status == 'approved' %}
+            <span class="status-badge status-pending">Not Added</span>
+            {% else %}
+            <span class="status-badge status-rejected">N/A</span>
+            {% endif %}
+          </td>
+          <td><span class="views-badge">👁 {{ n.views or 0 }}</span></td>
+          <td>
+            <span class="status-badge status-{{ n.status }}">
+              {% if n.status=='pending' %}⏳{% elif n.status=='approved' %}✅{% else %}🚫{% endif %}
+              {{ n.status }}
+            </span>
+          </td>
+          <td><span class="ts">{{ n.created_at[:10] if n.created_at else '—' }}</span></td>
+          <td>
+            <div class="action-btns">
+              {% if role == 'admin' or n.status != 'approved' %}
+              <button class="action-btn btn-edit"
+                data-id="{{ n.id }}"
+                data-title="{{ n.title | e }}"
+                data-content="{{ n.content | e }}"
+                data-hindi-title="{{ n.hindi_title | e }}"
+                data-hindi-content="{{ n.hindi_content | e }}"
+                data-image="{{ n.image_url | e }}"
+                data-tags="{{ n.tags | e }}"
+                data-category="{{ n.category | e }}"
+                data-is-hindi="{{ 'true' if n.category.startswith('Hindi-') else 'false' }}"
+                data-has-english="{{ 'true' if n.title or n.content else 'false' }}"
+                data-has-hindi="{{ 'true' if n.hindi_title or n.hindi_content else 'false' }}"
+                onclick="openEdit(this)">✏️ Edit</button>
+              {% endif %}
+              {% if role == 'admin' and n.status != 'approved' %}
+              <a href="/approve/{{ n.id }}" class="action-btn btn-approve">✅ Approve</a>
+              {% endif %}
+              {% if n.status == 'approved' %}
+              <a href="/news/{{ n.id }}" target="_blank" class="action-btn btn-view">👁 View</a>
+              {% if role == 'admin' %}
+              <a href="/top-pick/{{ n.id }}" class="action-btn btn-edit">{{ '⭐ Remove Top 5' if n.top_pick else '⭐ Add Top 5' }}</a>
+              {% endif %}
+              {% endif %}
+              {% if role == 'admin' and n.status != 'rejected' %}
+              <a href="/reject/{{ n.id }}" class="action-btn btn-reject">🚫 Reject</a>
+              {% endif %}
+              {% if role == 'admin' or n.status != 'approved' %}
+              <a href="/delete/{{ n.id }}" class="action-btn btn-delete" onclick="return confirm('Delete this article?')">🗑</a>
+              {% endif %}
+            </div>
+            {% if n.status == 'approved' %}
+            <div class="share-row">
+              <a class="sh-sm" style="background:#1877F2;color:#fff" href="https://www.facebook.com/sharer/sharer.php?u={{ request.url_root }}news/{{ n.id }}" target="_blank">FB</a>
+              <a class="sh-sm" style="background:#25D366;color:#fff" href="https://wa.me/?text={{ request.url_root }}news/{{ n.id }}" target="_blank">WA</a>
+              <a class="sh-sm" style="background:#000;color:#fff" href="https://twitter.com/intent/tweet?url={{ request.url_root }}news/{{ n.id }}" target="_blank">𝕏</a>
+              <button class="sh-sm" style="background:#eee;color:#333;border:none;cursor:pointer" onclick="navigator.clipboard.writeText('{{ request.url_root }}news/{{ n.id }}');this.textContent='✓'">🔗</button>
+            </div>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <div style="font-size:48px;margin-bottom:16px">📭</div>
+      <h3>No Articles Yet</h3>
+      <p>{% if role == 'admin' %}Use the sidebar feed fetcher to publish ready-to-review stories with summary and strong tags.{% else %}Your submitted stories will appear here. Send new news from the Submit page.{% endif %}</p>
+      <a href="{% if role == 'admin' %}/generate?category=India{% else %}/submit{% endif %}">{% if role == 'admin' %}Fetch India News →{% else %}Submit Article →{% endif %}</a>
+    </div>
+    {% endif %}
+
+    {% if role == 'admin' %}
+    <div style="display:grid;grid-template-columns:1.1fr .9fr;gap:16px;margin-top:22px">
+      <div class="chart-card">
+        <h3>💬 Latest Comments</h3>
+        {% if comments %}
+        <div style="display:flex;flex-direction:column;gap:10px">
+          {% for c in comments[:8] %}
+          <div style="border:1px solid #eaedf0;border-radius:8px;padding:12px 14px;background:#fafbfc">
+            <div style="display:flex;justify-content:space-between;gap:12px;font-size:12px;margin-bottom:6px">
+              <strong>{{ c.name }}</strong>
+              <span style="color:#888">{{ c.created_at[:16] if c.created_at else '' }}</span>
+            </div>
+            <div style="font-size:13px;line-height:1.5;color:#444">{{ c.message }}</div>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              {% if c.status != 'approved' %}
+              <a href="/comments/approve/{{ c.id }}" class="action-btn btn-approve">Approve</a>
+              {% endif %}
+              <a href="/comments/delete/{{ c.id }}" class="action-btn btn-delete">Delete</a>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p style="font-size:13px;color:#888">No comments yet.</p>
+        {% endif %}
+      </div>
+
+      <div class="chart-card">
+        <h3>⭐ Top 5 News Status</h3>
+        <p style="font-size:13px;color:#666;line-height:1.7">Currently <strong>{{ top_pick_count }}</strong> / 5 stories are added to Top 5. Use the 'Add Top 5' button next to any approved article to set it manually.</p>
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+          <span class="status-badge status-approved">⭐ Added</span>
+          <span class="status-badge status-pending">Slot Available</span>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</main>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>✏️ Edit Article</h2>
+      <button class="modal-close" onclick="closeEdit()">✕</button>
+    </div>
+    <form method="POST" id="editForm" action="" enctype="multipart/form-data">
+      <div class="modal-body">
+
+        <div id="editEnglishFields">
+          <div class="field-group">
+            <label class="field-label">English Title</label>
+            <input class="field-input" type="text" name="title" id="edit_title">
+          </div>
+
+          <div class="field-group">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:7px">
+              <label class="field-label" style="margin-bottom:0">English Content</label>
+              <div style="display:flex;gap:6px">
+                <button type="button" id="translateToHindiBtn"
+                  onclick="translateArticle('hi')"
+                  style="padding:9px 14px;background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif">
+                  🔄 English → Hindi
+                </button>
+                {% if role == 'admin' %}
+                <button type="button" id="generateEditEnglishBtn"
+                  onclick="generateEditArticle('en')"
+                  style="padding:9px 14px;background:#fff5e8;color:#c0610f;border:1px solid #f0c48a;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif">
+                  🤖 AI Generate 500 Words
+                </button>
+                {% endif %}
+              </div>
+            </div>
+            <textarea class="field-input" name="content" id="edit_content" rows="6"></textarea>
+          </div>
+        </div>
+
+        <div id="editHindiFields">
+          <div class="field-group">
+            <label class="field-label">Hindi Title</label>
+            <input class="field-input" type="text" name="hindi_title" id="edit_hindi_title" style="font-family:serif">
+          </div>
+
+          <div class="field-group">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:7px">
+              <label class="field-label" style="margin-bottom:0">Hindi Content</label>
+              <div style="display:flex;gap:6px">
+                <button type="button" id="translateToEnglishBtn"
+                  onclick="translateArticle('en')"
+                  style="padding:9px 14px;background:#e3f2fd;color:#1565c0;border:1px solid #90caf9;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif">
+                  🔄 Hindi → English
+                </button>
+                {% if role == 'admin' %}
+                <button type="button" id="generateEditHindiBtn"
+                  onclick="generateEditArticle('hi')"
+                  style="padding:9px 14px;background:#fff5e8;color:#c0610f;border:1px solid #f0c48a;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif">
+                  🤖 AI Generate 500 Words
+                </button>
+                {% endif %}
+              </div>
+            </div>
+            <textarea class="field-input" name="hindi_content" id="edit_hindi_content" rows="6" style="font-family:serif"></textarea>
+          </div>
+        </div>
+
+        <!-- TAGS -->
+        <div class="field-group">
+          <label class="field-label">🏷️ Tags (comma separated)</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input class="field-input" type="text" name="tags" id="edit_tags"
+              placeholder="e.g. election shift, policy impact, opposition response"
+              style="flex:1">
+            <input type="hidden" id="edit_category" value="General">
+            <button type="button" id="autoTagBtn"
+              onclick="autoGenerateTags()"
+              style="padding:9px 14px;background:var(--purple);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif">
+              🤖 Auto Tags (5-6)
+            </button>
+          </div>
+          <div id="tagPreview" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:5px"></div>
+        </div>
+
+        <!-- IMAGE UPLOAD -->
+        <div class="field-group">
+          <label class="field-label">News Image</label>
+          <div class="img-upload-tabs">
+            <button type="button" class="img-tab active" onclick="switchTab('url')">🔗 Image URL</button>
+            <button type="button" class="img-tab" onclick="switchTab('upload')">💻 Upload from Computer</button>
+            <button type="button" class="img-tab" onclick="switchTab('drag')">🖱️ Drag & Drop</button>
+          </div>
+
+          <!-- URL Tab -->
+          <div class="img-panel active" id="tab-url">
+            <input class="field-input" type="text" name="image_url" id="edit_image_url"
+              placeholder="https://images.unsplash.com/..."
+              oninput="previewImg(this.value)">
+          </div>
+
+          <!-- Upload Tab -->
+          <div class="img-panel" id="tab-upload">
+            <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFileSelect(this)">
+            <button type="button" class="field-input" style="cursor:pointer;text-align:left;background:#f7f8fa"
+              onclick="document.getElementById('fileInput').click()">
+              📁 Choose image from computer / Google Drive...
+            </button>
+          </div>
+
+          <!-- Drag & Drop Tab -->
+          <div class="img-panel" id="tab-drag">
+            <div class="drop-zone" id="dropZone"
+              ondragover="event.preventDefault();this.classList.add('dragover')"
+              ondragleave="this.classList.remove('dragover')"
+              ondrop="handleDrop(event)">
+              <div class="drop-icon">🖼️</div>
+              <p>Drag &amp; drop your image here</p>
+              <p style="font-size:11px;margin-top:4px;color:#bbb">JPG, PNG, WEBP supported</p>
+            </div>
+          </div>
+
+          <!-- Preview -->
+          <div class="img-preview-box" style="margin-top:10px">
+            <img id="imgPreview" class="show" src="" alt="preview" style="display:none;width:100%;max-height:160px;object-fit:cover;border-radius:6px;border:1px solid #dde1e7">
+            <input type="hidden" name="image_url" id="edit_image_url_hidden">
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="action-btn btn-delete" onclick="closeEdit()" style="padding:8px 18px">Cancel</button>
+        <button type="submit" class="action-btn btn-approve" style="padding:8px 24px;font-size:12px;background:var(--green);color:#fff;border:none">💾 Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Chart Data from Flask -->
+<script>
+const catData = {{ cat_stats | tojson }};
+const countryData = {{ country_stats | tojson }};
+const cityData = {{ city_stats | tojson }};
+</script>
+
+<script>
+// Date
+document.getElementById('currentDate').textContent =
+  new Date().toLocaleDateString('en-IN',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
+
+// Auto-dismiss flashes
+setTimeout(()=>{
+  document.querySelectorAll('.flash').forEach(el=>{
+    el.style.transition='opacity 0.4s';el.style.opacity='0';
+    setTimeout(()=>el.remove(),400);
+  });
+},4000);
+
+// ── CHARTS ──
+const COLORS = ['#e74c3c','#2ecc71','#f39c12','#3498db','#9b59b6','#1abc9c','#e67e22','#d35400','#27ae60','#2980b9','#8e44ad','#16a085'];
+
+function buildDonut(canvasId, legendId, labels, values) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  if (!labels.length) {
+    canvas.parentElement.innerHTML = '<p style="color:#aaa;font-size:13px;text-align:center;padding:40px">No data yet</p>';
+    return;
+  }
+  const ctx = canvas.getContext('2d');
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{data: values, backgroundColor: COLORS.slice(0,labels.length), borderWidth: 2, borderColor: '#fff', hoverOffset: 6}]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '60%',
+      plugins: {
+        legend: {display: false},
+        tooltip: {callbacks: {label: ctx => ` ${ctx.label}: ${ctx.parsed} (${Math.round(ctx.parsed/values.reduce((a,b)=>a+b,0)*100)}%)`}}
+      }
+    }
+  });
+  const leg = document.getElementById(legendId);
+  labels.forEach((l,i) => {
+    leg.innerHTML += `<span class="legend-item"><span class="legend-dot" style="background:${COLORS[i]}"></span>${l}</span>`;
+  });
+}
+
+buildDonut('catChart','catLegend', catData.map(d=>d.category), catData.map(d=>d.count));
+
+// Show country or city
+const locData = cityData.length ? cityData : countryData;
+buildDonut('countryChart','countryLegend',
+  locData.map(d=>d.city||d.country), locData.map(d=>d.count));
+
+// ── EDIT MODAL ──
+function openEdit(btn) {
+  document.getElementById('editForm').action = '/edit/' + btn.dataset.id;
+  document.getElementById('edit_title').value          = btn.dataset.title;
+  document.getElementById('edit_content').value        = btn.dataset.content;
+  document.getElementById('edit_hindi_title').value    = btn.dataset.hindiTitle;
+  document.getElementById('edit_hindi_content').value  = btn.dataset.hindiContent;
+  document.getElementById('edit_tags').value           = btn.dataset.tags || '';
+  document.getElementById('edit_category').value       = btn.dataset.category || 'General';
+  renderTagPreview(btn.dataset.tags || '');
+  const hasEnglish = btn.dataset.hasEnglish === 'true';
+  const hasHindi = btn.dataset.hasHindi === 'true';
+  syncEditLanguageFields(btn.dataset.isHindi === 'true', hasEnglish, hasHindi);
+  const img = btn.dataset.image;
+  document.getElementById('edit_image_url').value      = img;
+  document.getElementById('edit_image_url_hidden').value = img;
+  previewImg(img);
+  switchTab('url');
+  document.getElementById('editModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function renderTagPreview(tagsStr) {
+  const box = document.getElementById('tagPreview');
+  box.innerHTML = '';
+  if (!tagsStr) return;
+  tagsStr.split(',').forEach(t => {
+    t = t.trim();
+    if (!t) return;
+    box.innerHTML += `<span style="background:#f0eeff;color:var(--purple);border:1px solid #c8bff8;padding:3px 9px;font-size:11px;border-radius:20px;cursor:pointer" onclick="removeTag('${t}')">${t} ✕</span>`;
+  });
+}
+
+function removeTag(tag) {
+  const inp = document.getElementById('edit_tags');
+  const tags = inp.value.split(',').map(t=>t.trim()).filter(t=>t && t!==tag);
+  inp.value = tags.join(', ');
+  renderTagPreview(inp.value);
+}
+
+document.getElementById('edit_tags').addEventListener('input', function() {
+  renderTagPreview(this.value);
+});
+
+async function autoGenerateTags() {
+  const btn = document.getElementById('autoTagBtn');
+  btn.textContent = '⏳ Generating...';
+  btn.disabled = true;
+  const modalBox = document.querySelector('.modal-box');
+  const savedScroll = modalBox ? modalBox.scrollTop : 0;
+  const isHindi = document.getElementById('edit_category').value.startsWith('Hindi-');
+  const title = isHindi ? document.getElementById('edit_hindi_title').value : document.getElementById('edit_title').value;
+  const content = isHindi ? document.getElementById('edit_hindi_content').value : document.getElementById('edit_content').value;
+  try {
+    const res = await fetch('/api/generate_tags', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({title, content, category: document.getElementById('edit_category').value, is_hindi: isHindi})
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Tag generation failed');
+    if (data.tags) {
+      document.getElementById('edit_tags').value = data.tags;
+      renderTagPreview(data.tags);
+    }
+  } catch(e) {
+    console.error('Tag generation failed:', e.message);
+    document.getElementById('edit_tags').placeholder = '⚠️ ' + (e.message || 'Tag generation failed');
+  }
+  btn.textContent = '🤖 Auto Tags (5-6)';
+  btn.disabled = false;
+  if (modalBox) requestAnimationFrame(() => { modalBox.scrollTop = savedScroll; });
+}
+
+async function generateEditArticle(lang) {
+  const isHindi = lang === 'hi';
+  const title = isHindi ? document.getElementById('edit_hindi_title').value : document.getElementById('edit_title').value;
+  const target = isHindi ? document.getElementById('edit_hindi_content') : document.getElementById('edit_content');
+  const btn = isHindi ? document.getElementById('generateEditHindiBtn') : document.getElementById('generateEditEnglishBtn');
+  if (!title) {
+    alert(isHindi ? 'Please enter the Hindi title first.' : 'Please enter the English title first.');
+    return;
+  }
+  // ── Save modal scroll position so page doesn't jump ──
+  const modalBox = document.querySelector('.modal-box');
+  const savedScroll = modalBox ? modalBox.scrollTop : 0;
+  btn.textContent = '⏳ Generating...';
+  btn.disabled = true;
+  // Visual spinner in textarea
+  const origVal = target.value;
+  target.value = '⏳ AI content generating... please wait';
+  target.style.color = '#aaa';
+  try {
+    const res = await fetch('/api/generate_article', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({title, category: document.getElementById('edit_category').value, lang})
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || data.error || 'Article generation failed');
+    if (data.content) {
+      target.value = data.content;
+      target.style.color = '';
+      // Flash green border to confirm success
+      target.style.borderColor = '#1a7a4a';
+      setTimeout(() => target.style.borderColor = '', 2000);
+    } else throw new Error('Empty response from AI');
+  } catch (e) {
+    target.value = origVal;
+    target.style.color = '';
+    const msg = (isHindi ? 'Hindi article' : 'English article') + ' generation failed: ' + (e.message || 'unknown error');
+    // Show inline error instead of alert (no focus loss)
+    target.placeholder = '⚠️ ' + msg;
+    console.error(msg);
+  }
+  btn.textContent = '🤖 AI Generate 500 Words';
+  btn.disabled = false;
+  // ── Restore modal scroll, prevent page jump ──
+  if (modalBox) requestAnimationFrame(() => { modalBox.scrollTop = savedScroll; });
+}
+
+function doFetch(e) {
+  e.preventDefault();
+  const sel = document.getElementById('sourceSelect');
+  const cat = sel ? sel.value : 'India';
+  const btn = document.getElementById('fetchBtn');
+  btn.textContent = '⏳ Fetching...';
+  btn.style.background = '#555';
+  window.location.href = '/generate?category=' + encodeURIComponent(cat);
+}
+
+function syncEditLanguageFields(isHindi, hasEnglish = true, hasHindi = false) {
+  const enFields  = document.getElementById('editEnglishFields');
+  const hiFields  = document.getElementById('editHindiFields');
+  const enTitle   = document.getElementById('edit_title');
+  const enContent = document.getElementById('edit_content');
+  const hiTitle   = document.getElementById('edit_hindi_title');
+  const hiContent = document.getElementById('edit_hindi_content');
+
+  // Rule: Hindi article → show ONLY Hindi fields
+  //       English article → show ONLY English fields
+  //       Both available → show both (fetched articles always have both)
+  if (isHindi && !hasEnglish) {
+    enFields.style.display = 'none';
+    hiFields.style.display = 'block';
+    enTitle.required = false;
+    hiTitle.required = true;
+  } else if (!isHindi && !hasHindi) {
+    enFields.style.display = 'block';
+    hiFields.style.display = 'none';
+    enTitle.required = true;
+    hiTitle.required = false;
+  } else {
+    // Both languages present (auto-fetched articles)
+    enFields.style.display = 'block';
+    hiFields.style.display = 'block';
+    enTitle.required = false;
+    hiTitle.required = false;
+  }
+}
+async function translateArticle(target) {
+  const isToHindi = target === 'hi';
+  const srcTitle   = isToHindi ? document.getElementById('edit_title').value : document.getElementById('edit_hindi_title').value;
+  const srcContent = isToHindi ? document.getElementById('edit_content').value : document.getElementById('edit_hindi_content').value;
+  const btn        = isToHindi ? document.getElementById('translateToHindiBtn') : document.getElementById('translateToEnglishBtn');
+  const tgtTitle   = isToHindi ? document.getElementById('edit_hindi_title') : document.getElementById('edit_title');
+  const tgtContent = isToHindi ? document.getElementById('edit_hindi_content') : document.getElementById('edit_content');
+
+  if (!srcTitle) {
+    alert(isToHindi ? 'Please enter the English title first.' : 'Please enter the Hindi title first.');
+    return;
+  }
+
+  const origText = btn.textContent;
+  btn.textContent = '⏳ Translating...';
+  btn.disabled = true;
+
+  const modalBox = document.querySelector('.modal-box');
+  const savedScroll = modalBox ? modalBox.scrollTop : 0;
+
+  try {
+    const res = await fetch('/api/translate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ title: srcTitle, content: srcContent, target })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Translation failed');
+
+    if (data.title) {
+      tgtTitle.value = data.title;
+      tgtTitle.style.borderColor = '#1a7a4a';
+      setTimeout(() => tgtTitle.style.borderColor = '', 2000);
+    }
+    if (data.content) {
+      tgtContent.value = data.content;
+      tgtContent.style.borderColor = '#1a7a4a';
+      setTimeout(() => tgtContent.style.borderColor = '', 2000);
+    }
+    if (!data.title && !data.content) {
+      alert('Translation returned empty. Try again.');
+    }
+  } catch(e) {
+    alert('Translation failed: ' + (e.message || 'unknown error'));
+  }
+
+  btn.textContent = origText;
+  btn.disabled = false;
+  if (modalBox) requestAnimationFrame(() => { modalBox.scrollTop = savedScroll; });
+}
+
+function closeEdit() {
+  document.getElementById('editModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('editModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('editModal')) closeEdit();
+});
+
+// Image tabs
+function switchTab(name) {
+  document.querySelectorAll('.img-tab').forEach((t,i)=>{
+    const names = ['url','upload','drag'];
+    t.classList.toggle('active', names[i]===name);
+  });
+  document.querySelectorAll('.img-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+function previewImg(url) {
+  const img = document.getElementById('imgPreview');
+  if (url && url.length > 5) {
+    img.src = url; img.style.display = 'block';
+    document.getElementById('edit_image_url_hidden').value = url;
+  } else {
+    img.style.display = 'none';
+  }
+}
+
+// File upload
+function handleFileSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  uploadFile(file);
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) uploadFile(file);
+}
+
+function uploadFile(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  fetch('/upload_image', {method:'POST', body: formData})
+    .then(r => r.json())
+    .then(data => {
+      if (data.url) {
+        document.getElementById('edit_image_url').value = data.url;
+        document.getElementById('edit_image_url_hidden').value = data.url;
+        previewImg(data.url);
+        switchTab('url');
+      }
+    })
+    .catch(() => {
+      // Fallback: show local preview only
+      const reader = new FileReader();
+      reader.onload = e => previewImg(e.target.result);
+      reader.readAsDataURL(file);
+    });
+}
+</script>
+</body>
+</html>
