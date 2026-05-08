@@ -1,0 +1,43 @@
+{% extends "admin/base.html" %}
+
+{% block branding %}
+<div id="site-name" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+  <a href="{% url 'admin:index' %}" style="color:#fff;font-size:18px;font-weight:700;text-decoration:none">
+    India News — Admin
+  </a>
+  <a href="/dashboard/" style="
+    background:#e63946;
+    color:#fff;
+    padding:6px 16px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:700;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    letter-spacing:.03em;
+    transition:background .2s;
+  " onmouseover="this.style.background='#c0001a'" onmouseout="this.style.background='#e63946'">
+    📊 Dashboard
+  </a>
+  <a href="/" target="_blank" style="
+    background:transparent;
+    color:rgba(255,255,255,.7);
+    padding:6px 14px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
+    text-decoration:none;
+    border:1px solid rgba(255,255,255,.25);
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    transition:all .2s;
+  " onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,.6)'" onmouseout="this.style.color='rgba(255,255,255,.7)';this.style.borderColor='rgba(255,255,255,.25)'">
+    🌐 View Website
+  </a>
+</div>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

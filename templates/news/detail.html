@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+{% load ad_tags %}
+{% block title %}{{ article.title_hi }} | India News{% endblock %}
+{% block meta_desc %}{{ article.summary_hi|default:article.content_hi|truncatechars:155 }}{% endblock %}
+
+{% block content %}
+<div class="container page-wrap">
+  <div class="main-grid">
+    <article>
+
+      <!-- Breadcrumb -->
+      <nav style="font-size:12px;color:var(--mid);margin-bottom:14px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <a href="/" style="color:var(--red)">Home</a> <span>›</span>
+        {% if article.category %}<a href="/category/{{ article.category.slug }}/" style="color:var(--red)">{{ article.category.name_en|default:article.category.name }}</a><span>›</span>{% endif %}
+        <span>{{ article.title_hi|truncatechars:45 }}</span>
+      </nav>
+
+      {% if article.category %}<div class="cat-tag" style="font-size:12px;margin-bottom:10px">{{ article.category.name_en|default:article.category.name }}</div>{% endif %}
+
+      <h1 style="font-family:'Tiro Devanagari Hindi',serif;font-size:31px;font-weight:700;line-height:1.45;margin-bottom:14px;color:var(--ink)">
+        {% if article.is_breaking %}<span class="brk-tag" style="font-size:10px;vertical-align:middle">Breaking</span> {% endif %}
+        {{ article.title_hi }}
+      </h1>
+
+      <!-- Meta -->
+      <div style="display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--mid);padding-bottom:16px;border-bottom:1.5px solid var(--border);margin-bottom:18px;align-items:center">
+        <span style="display:flex;align-items:center;gap:5px">
+          <span style="width:28px;height:28px;background:var(--red);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700">
+            {{ article.author.get_full_name|default:"IN"|slice:":2"|upper }}
+          </span>
+          <strong style="color:var(--ink)">{{ article.author.get_full_name|default:"India News Desk" }}</strong>
+        </span>
+        <span><i class="far fa-calendar-alt" style="color:var(--red)"></i> {{ article.published_at|date:"d M Y, H:i" }}</span>
+        <span><i class="far fa-clock"></i> {{ article.published_at|timesince }} ago</span>
+        <span><i class="far fa-eye"></i> {{ article.views }} views</span>
+        <span>📖 {{ article.read_time }} min read</span>
+        {% if article.location %}<span><i class="fas fa-map-marker-alt" style="color:var(--red)"></i> {{ article.location }}</span>{% endif %}
+      </div>
+
+      <!-- Featured Image -->
+      {% if article.get_image %}
+      <figure style="margin-bottom:22px">
+        <img src="{{ article.get_image }}" alt="{{ article.title_hi }}"
+             style="width:100%;max-height:480px;object-fit:cover;border-radius:8px"
+             onerror="this.style.display='none'">
+        {% if article.image_caption %}
+        <figcaption style="font-size:12px;color:var(--mid);margin-top:6px;text-align:center;font-style:italic">{{ article.image_caption }}</figcaption>
+        {% endif %}
+      </figure>
+      {% endif %}
+
+      <!-- Summary -->
+      {% if article.summary_hi %}
+      <div style="background:linear-gradient(135deg,#fff5f5,#fff8f8);border-left:4px solid var(--red);padding:14px 18px;border-radius:0 8px 8px 0;margin-bottom:22px;font-size:16px;font-weight:600;line-height:1.7;color:var(--ink)">
+        {{ article.summary_hi }}
+      </div>
+      {% endif %}
+
+      <!-- Video -->
+      {% if article.video_url %}
+      <div style="margin-bottom:22px;border-radius:8px;overflow:hidden;aspect-ratio:16/9;background:#000">
+        <iframe src="{{ article.video_url }}" width="100%" height="100%" frameborder="0" allowfullscreen style="display:block"></iframe>
+      </div>
+      {% endif %}
+
+      <!-- Content -->
+      <div style="font-size:17px;line-height:1.9;color:var(--ink);font-family:'Tiro Devanagari Hindi',serif">
+        {{ article.content_hi|linebreaks }}
+      </div>
+
+      <!-- English content toggle -->
+      {% if article.content_en %}
+      <div style="margin-top:28px;border:1px solid var(--border);border-radius:8px;overflow:hidden">
+        <button onclick="var el=document.getElementById('en-content');el.style.display=el.style.display==='none'?'block':'none';this.textContent=el.style.display==='none'?'Read in English ▼':'Hide English ▲'"
+                style="width:100%;padding:12px 16px;background:var(--light);border:none;text-align:left;font-size:13px;font-weight:700;cursor:pointer;color:var(--red);font-family:var(--hf)">
+          Read in English ▼
+        </button>
+        <div id="en-content" style="display:none;padding:18px;font-size:16px;line-height:1.8;color:var(--ink)">
+          <h2 style="font-size:22px;font-weight:700;margin-bottom:14px">{{ article.title_en }}</h2>
+          {% if article.summary_en %}<p style="font-size:15px;color:var(--mid);margin-bottom:14px;font-style:italic">{{ article.summary_en }}</p>{% endif %}
+          {{ article.content_en|linebreaks }}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Tags -->
+      {% if article.tags.all %}
+      <div style="margin-top:22px;display:flex;flex-wrap:wrap;gap:7px;align-items:center">
+        <span style="font-size:12px;color:var(--mid);font-weight:700">Tags:</span>
+        {% for tag in article.tags.all %}
+        <a href="/tag/{{ tag.slug }}/" style="padding:4px 11px;border-radius:20px;border:1px solid var(--border);font-size:12px;background:var(--light);color:var(--ink);transition:all .2s"
+           onmouseover="this.style.background='var(--red)';this.style.color='#fff'" onmouseout="this.style.background='var(--light)';this.style.color='var(--ink)'">
+          #{{ tag.name }}
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Share -->
+      <div style="margin-top:22px">
+        <div style="font-size:12px;color:var(--mid);font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Share This Article</div>
+        <div class="share-row">
+          <button class="shr-btn sh-fb" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(window.location.href))"><i class="fab fa-facebook-f"></i> Facebook</button>
+          <button class="shr-btn sh-wa" onclick="window.open('https://api.whatsapp.com/send?text='+encodeURIComponent('{{ article.title_hi }} '+window.location.href))"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+          <button class="shr-btn sh-tw" onclick="window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent('{{ article.title_hi }}')+'&url='+encodeURIComponent(window.location.href))"><i class="fab fa-x-twitter"></i> Twitter</button>
+          <button class="shr-btn sh-tg" onclick="window.open('https://t.me/share/url?url='+encodeURIComponent(window.location.href)+'&text='+encodeURIComponent('{{ article.title_hi }}'))"><i class="fab fa-telegram-plane"></i> Telegram</button>
+          <button class="shr-btn sh-cp" onclick="navigator.clipboard.writeText(window.location.href);this.textContent='✓ Copied!'"><i class="fas fa-link"></i> Copy Link</button>
+        </div>
+      </div>
+
+      {% ad_slot 'in_content' 'In-Content Ad' %}
+
+      <!-- Related News -->
+      {% if related %}
+      <div style="margin-top:32px">
+        <div class="sec-head"><h2>Related News</h2></div>
+        <div class="g2">
+          {% for n in related %}
+          <a href="/{{ n.slug }}/" class="ncard">
+            <img src="{{ n.get_image }}" alt="{{ n.title_hi }}" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80'">
+            <div class="ncard-body">
+              <div class="cat-tag">{{ n.category.name_en|default:n.category.name }}</div>
+              <div class="ntitle">{{ n.title_hi }}</div>
+              <div class="nmeta"><i class="far fa-clock"></i> {{ n.published_at|timesince }} ago</div>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Comments -->
+      {% if site.enable_comments and article.allow_comments %}
+      <div id="comments" style="margin-top:36px">
+        <div class="sec-head"><h2>Comments ({{ comments.count }})</h2></div>
+
+        {% for comment in comments %}
+        <div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:12px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <div style="width:36px;height:36px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px">{{ comment.name|slice:":1"|upper }}</div>
+            <div>
+              <div style="font-weight:700;font-size:13px">{{ comment.name }}</div>
+              <div style="font-size:11px;color:var(--mid)">{{ comment.created_at|timesince }} ago</div>
+            </div>
+          </div>
+          <p style="font-size:14px;line-height:1.6;color:var(--ink)">{{ comment.content }}</p>
+        </div>
+        {% empty %}
+        <p style="color:var(--mid);font-size:14px;padding:20px 0">No comments yet. Be the first to comment!</p>
+        {% endfor %}
+
+        <!-- Comment Form -->
+        <div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:20px;margin-top:20px">
+          <h3 style="font-size:16px;font-weight:700;margin-bottom:16px">Leave a Comment</h3>
+          <form method="post" action="#comments">
+            {% csrf_token %}
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+              <input name="name" placeholder="Your Name *" required style="padding:10px 14px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--hf);font-size:14px;background:var(--bg);color:var(--ink);outline:none">
+              <input name="email" type="email" placeholder="Email (optional)" style="padding:10px 14px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--hf);font-size:14px;background:var(--bg);color:var(--ink);outline:none">
+            </div>
+            <textarea name="content" placeholder="Write your comment..." required rows="4" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--hf);font-size:14px;background:var(--bg);color:var(--ink);resize:vertical;margin-bottom:12px;outline:none"></textarea>
+            <button type="submit" style="background:var(--red);color:#fff;padding:11px 26px;border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--hf)">Post Comment</button>
+          </form>
+        </div>
+      </div>
+      {% endif %}
+
+    </article>
+
+    <!-- SIDEBAR -->
+    <aside>
+      {% ad_slot 'sidebar_top' 'Sidebar Top (300×250)' %}
+
+      <div class="sb-card mb20">
+        <div class="sb-head red">🔥 Most Popular</div>
+        <div class="sb-body">
+          {% for n in popular %}
+          <a href="/{{ n.slug }}/" class="sb-item">
+            <div style="font-size:20px;font-weight:900;color:var(--red);width:26px;flex-shrink:0;text-align:center">{{ forloop.counter }}</div>
+            <div>
+              <div class="sb-ttl">{{ n.title_hi|truncatechars:70 }}</div>
+              <div class="sb-tm"><i class="far fa-eye"></i> {{ n.views|default:0 }} views</div>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="sb-card mb20">
+        <div class="sb-head dark">📂 Categories</div>
+        <div class="sb-body">
+          {% for cat in nav_categories %}
+          <a href="/category/{{ cat.slug }}/"
+             style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);color:var(--ink);font-size:13px">
+            <span>{{ cat.name_en|default:cat.name }}</span>
+            <span style="background:var(--red);color:#fff;font-size:10px;padding:1px 7px;border-radius:10px;font-weight:700">{{ cat.news.count }}</span>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      {% ad_slot 'sidebar_bottom' 'Sidebar Bottom (300×250)' %}
+    </aside>
+  </div>
+</div>
+{% endblock %}

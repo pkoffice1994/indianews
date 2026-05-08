@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Video News | India News{% endblock %}
+{% block content %}
+<div class="container page-wrap">
+  <div class="sec-head"><h2>📹 Video News</h2></div>
+  <div class="g3">
+    {% for n in videos %}
+    <a href="/{{ n.slug }}/" class="ncard">
+      <div style="position:relative">
+        <img src="{{ n.get_image }}" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80'" alt="" style="height:200px;width:100%;object-fit:cover">
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.65);border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center">
+          <i class="fas fa-play" style="color:#fff;font-size:16px;margin-left:4px"></i>
+        </div>
+      </div>
+      <div class="ncard-body">
+        <div class="cat-tag">{{ n.category.name_en|default:n.category.name }}</div>
+        <div class="ntitle">{{ n.title_hi }}</div>
+        <div class="nmeta"><i class="far fa-clock"></i> {{ n.published_at|timesince }} ago</div>
+      </div>
+    </a>
+    {% empty %}
+    <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--mid)">No video news yet.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

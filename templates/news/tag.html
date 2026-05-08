@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}#{{ tag.name }} | India News{% endblock %}
+{% block content %}
+<div class="container page-wrap">
+  <div style="margin-bottom:20px">
+    <h1 style="font-size:26px;font-weight:700">#{{ tag.name }}</h1>
+    <p style="color:var(--mid);font-size:14px;margin-top:4px">{{ page_obj.paginator.count }} articles tagged with this topic</p>
+  </div>
+  <div class="g3">
+    {% for n in page_obj %}
+    <a href="/{{ n.slug }}/" class="ncard">
+      <img src="{{ n.get_image }}" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80'" alt="">
+      <div class="ncard-body">
+        <div class="cat-tag">{{ n.category.name_en|default:n.category.name }}</div>
+        <div class="ntitle">{{ n.title_hi }}</div>
+        <div class="nmeta"><i class="far fa-clock"></i> {{ n.published_at|timesince }} ago</div>
+      </div>
+    </a>
+    {% empty %}
+    <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--mid)">No articles found for this tag.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
