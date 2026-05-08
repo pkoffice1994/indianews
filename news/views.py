@@ -220,3 +220,40 @@ def dashboard_view(request):
         'daily_data': daily_data,
         'ads': get_ads_context(),
     })
+
+
+def advertise_view(request):
+    from .models import AdBooking
+    success = False
+    if request.method == 'POST':
+        AdBooking.objects.create(
+            client_name=request.POST.get('client_name',''),
+            client_email=request.POST.get('client_email',''),
+            client_phone=request.POST.get('client_phone',''),
+            company_name=request.POST.get('company_name',''),
+            position=request.POST.get('position','header'),
+            duration_days=int(request.POST.get('duration_days',30)),
+            banner_image=request.FILES.get('banner_image'),
+            banner_url=request.POST.get('banner_url',''),
+            website_url=request.POST.get('website_url',''),
+            ad_title=request.POST.get('ad_title',''),
+            message=request.POST.get('message',''),
+            total_price=int(request.POST.get('total_price',0) or 0),
+        )
+        success = True
+
+    packages = [
+        {'position':'header',        'name':'Header Banner',    'size':'728×90',  'price_30':15000,'preview_h':40, 'impressions':'5,000+'},
+        {'position':'home_top',      'name':'Home Top Banner',  'size':'970×90',  'price_30':12000,'preview_h':40, 'impressions':'4,000+'},
+        {'position':'sidebar_top',   'name':'Sidebar Box',      'size':'300×250', 'price_30':8000, 'preview_h':60, 'impressions':'3,000+'},
+        {'position':'sidebar_bottom','name':'Sidebar Tall',     'size':'300×600', 'price_30':10000,'preview_h':80, 'impressions':'3,500+'},
+        {'position':'in_content',    'name':'Article Mid',      'size':'336×280', 'price_30':6000, 'preview_h':60, 'impressions':'2,500+'},
+        {'position':'footer',        'name':'Footer Banner',    'size':'728×90',  'price_30':5000, 'preview_h':40, 'impressions':'2,000+'},
+    ]
+
+    return render(request, 'news/advertise.html', {
+        'packages': packages,
+        'success': success,
+        'site': SystemSetting.get_settings(),
+        'ads': get_ads_context(),
+    })

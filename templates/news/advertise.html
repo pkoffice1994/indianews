@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+{% block title %}Advertise With Us — India News{% endblock %}
+
+{% block content %}
+<div class="container page-wrap">
+
+<style>
+.adv-hero{background:linear-gradient(135deg,#e60026,#8b0000);color:#fff;border-radius:10px;padding:40px 32px;text-align:center;margin-bottom:32px}
+.adv-hero h1{font-size:32px;font-weight:800;margin-bottom:8px}
+.adv-hero p{font-size:16px;opacity:.85;margin:0}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+@media(max-width:700px){.stats-row{grid-template-columns:repeat(2,1fr)}}
+.stat-card{background:#fff;border:1px solid #eee;border-radius:8px;padding:20px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.stat-num{font-size:28px;font-weight:800;color:#e60026;line-height:1}
+.stat-lbl{font-size:12px;color:#888;margin-top:4px}
+.pkg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
+@media(max-width:750px){.pkg-grid{grid-template-columns:1fr}}
+.pkg-card{background:#fff;border:1.5px solid #eee;border-radius:10px;overflow:hidden;transition:box-shadow .2s,transform .2s;cursor:pointer}
+.pkg-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.1);transform:translateY(-3px)}
+.pkg-card.selected{border-color:#e60026;box-shadow:0 0 0 3px rgba(230,0,38,.15)}
+.pkg-head{padding:16px 18px;border-bottom:1px solid #f0f0f0}
+.pkg-pos{font-size:13px;font-weight:700;color:#111;margin-bottom:4px}
+.pkg-size{display:inline-block;background:#f5f5f5;color:#666;font-size:11px;padding:2px 8px;border-radius:4px;font-family:monospace}
+.pkg-body{padding:16px 18px}
+.pkg-price{font-size:22px;font-weight:800;color:#e60026}
+.pkg-per{font-size:12px;color:#888}
+.pkg-features{list-style:none;margin-top:10px;font-size:12px;color:#555}
+.pkg-features li{padding:3px 0}
+.pkg-features li::before{content:'✓ ';color:#e60026;font-weight:700}
+.pkg-select-btn{display:block;text-align:center;background:#e60026;color:#fff;padding:9px;font-size:13px;font-weight:600;border-radius:0 0 8px 8px;margin:-1px -1px -1px;transition:background .2s}
+.pkg-select-btn:hover{background:#c00020}
+.form-wrap{background:#fff;border:1px solid #eee;border-radius:10px;padding:28px;box-shadow:0 1px 8px rgba(0,0,0,.06)}
+.form-wrap h2{font-size:20px;font-weight:700;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #f0f0f0}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:600px){.form-row{grid-template-columns:1fr}}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;font-weight:600;color:#333;margin-bottom:6px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;border:1.5px solid #ddd;border-radius:6px;font-size:14px;font-family:inherit;background:#fafafa;color:#111;outline:none;transition:border .2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#e60026;background:#fff}
+.price-preview{background:linear-gradient(135deg,#fff5f6,#ffe0e3);border:1.5px solid #ffb3bb;border-radius:8px;padding:16px 20px;margin:16px 0;display:flex;justify-content:space-between;align-items:center}
+.pp-label{font-size:13px;color:#c00}
+.pp-price{font-size:26px;font-weight:800;color:#e60026}
+.submit-btn{width:100%;padding:14px;background:#e60026;color:#fff;border:none;border-radius:6px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s}
+.submit-btn:hover{background:#c00020}
+.success-box{background:#e8f5e9;border:1.5px solid #66bb6a;border-radius:8px;padding:24px;text-align:center;display:none}
+.success-box h3{color:#2e7d32;font-size:20px;margin-bottom:8px}
+.size-preview{display:flex;align-items:center;justify-content:center;border:2px dashed #ddd;border-radius:6px;margin:8px 0 4px;font-size:11px;color:#aaa;font-weight:600;background:#fafafa}
+</style>
+
+<!-- Hero -->
+<div class="adv-hero">
+  <h1>📢 Advertise With India News</h1>
+  <p>Reach lakhs of readers daily — book your ad spot in minutes</p>
+</div>
+
+<!-- Stats -->
+<div class="stats-row">
+  <div class="stat-card"><div class="stat-num">5L+</div><div class="stat-lbl">Monthly Readers</div></div>
+  <div class="stat-card"><div class="stat-num">12L+</div><div class="stat-lbl">Monthly Page Views</div></div>
+  <div class="stat-card"><div class="stat-num">85%</div><div class="stat-lbl">Mobile Traffic</div></div>
+  <div class="stat-card"><div class="stat-num">6+</div><div class="stat-lbl">Ad Positions</div></div>
+</div>
+
+<!-- Packages -->
+<div class="sec-head"><h2>Ad Packages</h2></div>
+<div class="pkg-grid" id="pkgGrid">
+  {% for pkg in packages %}
+  <div class="pkg-card" onclick="selectPkg('{{pkg.position}}','{{pkg.name}}','{{pkg.size}}','{{pkg.price_30}}')">
+    <div class="pkg-head">
+      <div class="pkg-pos">{{pkg.name}}</div>
+      <span class="pkg-size">{{pkg.size}}</span>
+    </div>
+    <div class="pkg-body">
+      <div class="size-preview" style="width:100%;height:{{pkg.preview_h}}px">{{pkg.size}}</div>
+      <div style="margin-top:10px">
+        <span class="pkg-price">₹{{pkg.price_30|floatformat:0}}</span>
+        <span class="pkg-per">/month</span>
+      </div>
+      <ul class="pkg-features">
+        <li>{{pkg.impressions}} est. impressions/day</li>
+        <li>Click tracking included</li>
+        <li>Start within 24 hours</li>
+      </ul>
+    </div>
+    <div class="pkg-select-btn">Select This Package →</div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Booking Form -->
+<div class="form-wrap" id="bookingForm">
+  <h2>📋 Book Your Ad Slot</h2>
+
+  {% if success %}
+  <div class="success-box" style="display:block">
+    <h3>✅ Booking Request Received!</h3>
+    <p>Hum 24 ghante me aapse contact karenge.<br>Phone/WhatsApp: <strong>{{ site.phone }}</strong></p>
+  </div>
+  {% else %}
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Your Name *</label>
+        <input type="text" name="client_name" required placeholder="Aapka naam">
+      </div>
+      <div class="form-group">
+        <label>Company / Brand</label>
+        <input type="text" name="company_name" placeholder="Optional">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Email *</label>
+        <input type="email" name="client_email" required placeholder="email@example.com">
+      </div>
+      <div class="form-group">
+        <label>Phone / WhatsApp *</label>
+        <input type="text" name="client_phone" required placeholder="+91 XXXXXXXXXX">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Your Website URL *</label>
+      <input type="url" name="website_url" required placeholder="https://yourwebsite.com">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Ad Position *</label>
+        <select name="position" id="posSelect" onchange="updatePrice()" required>
+          <option value="">— Select Position —</option>
+          {% for pkg in packages %}
+          <option value="{{pkg.position}}" data-price="{{pkg.price_30}}" data-name="{{pkg.name}}">{{pkg.name}} ({{pkg.size}})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Duration *</label>
+        <select name="duration_days" id="durSelect" onchange="updatePrice()" required>
+          <option value="7">7 Days</option>
+          <option value="15">15 Days</option>
+          <option value="30" selected>1 Month (30 Days)</option>
+          <option value="90">3 Months (Best Value)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Banner Image (Upload karo)</label>
+      <input type="file" name="banner_image" accept="image/*">
+      <div style="font-size:11px;color:#888;margin-top:4px" id="sizeHint">Position chunne ke baad exact size dikhega</div>
+    </div>
+
+    <div class="form-group">
+      <label>Ya Banner Image URL</label>
+      <input type="url" name="banner_url" placeholder="https://... (agar image URL ho)">
+    </div>
+
+    <div class="form-group">
+      <label>Ad Title / Caption</label>
+      <input type="text" name="ad_title" placeholder="Optional — ad ke liye short text">
+    </div>
+
+    <div class="form-group">
+      <label>Message</label>
+      <textarea name="message" rows="3" placeholder="Koi special requirement ho to batao..."></textarea>
+    </div>
+
+    <!-- Price Preview -->
+    <div class="price-preview">
+      <div>
+        <div class="pp-label">Estimated Total</div>
+        <div style="font-size:12px;color:#c00" id="priceBreakdown">Position + duration chunne ke baad price dikhega</div>
+      </div>
+      <div class="pp-price" id="priceDisplay">₹ —</div>
+    </div>
+
+    <input type="hidden" name="total_price" id="totalPriceInput" value="0">
+
+    <button type="submit" class="submit-btn">🚀 Book My Ad Slot — Request Submit Karo</button>
+    <p style="font-size:12px;color:#888;margin-top:10px;text-align:center">
+      Submit ke baad hum 24 ghante me WhatsApp/Email pe contact karenge aur payment details bhejenge.
+    </p>
+  </form>
+  {% endif %}
+</div>
+
+<!-- Contact -->
+<div style="background:#fff;border:1px solid #eee;border-radius:10px;padding:24px;margin-top:24px;text-align:center">
+  <h3 style="font-size:16px;margin-bottom:8px">📞 Direct Contact</h3>
+  <p style="color:#555;font-size:14px">
+    {% if site.phone %}<strong>Phone/WhatsApp:</strong> {{ site.phone }}&nbsp;&nbsp;|&nbsp;&nbsp;{% endif %}
+    {% if site.email %}<strong>Email:</strong> {{ site.email }}{% endif %}
+  </p>
+</div>
+
+</div>
+
+<script>
+const PRICES = {
+  header:         {30:15000,7:4000,15:8000,90:38000},
+  home_top:       {30:12000,7:3000,15:6000,90:30000},
+  sidebar_top:    {30:8000, 7:2000,15:4000,90:20000},
+  sidebar_bottom: {30:10000,7:2500,15:5000,90:25000},
+  in_content:     {30:6000, 7:1500,15:3000,90:15000},
+  footer:         {30:5000, 7:1200,15:2500,90:12000},
+};
+const SIZES = {
+  header:'728×90 px',home_top:'970×90 px',
+  sidebar_top:'300×250 px',sidebar_bottom:'300×600 px',
+  in_content:'336×280 px',footer:'728×90 px'
+};
+
+function updatePrice(){
+  const pos = document.getElementById('posSelect').value;
+  const dur = parseInt(document.getElementById('durSelect').value);
+  if(!pos){
+    document.getElementById('priceDisplay').textContent='₹ —';
+    document.getElementById('priceBreakdown').textContent='Position + duration chunne ke baad price dikhega';
+    document.getElementById('totalPriceInput').value=0;
+    document.getElementById('sizeHint').textContent='Position chunne ke baad exact size dikhega';
+    return;
+  }
+  const price = PRICES[pos][dur] || 0;
+  document.getElementById('priceDisplay').textContent='₹'+price.toLocaleString('en-IN');
+  document.getElementById('priceBreakdown').textContent=SIZES[pos]+' × '+dur+' days';
+  document.getElementById('totalPriceInput').value=price;
+  document.getElementById('sizeHint').textContent='Required size: '+SIZES[pos];
+}
+
+function selectPkg(pos, name, size, price){
+  document.getElementById('posSelect').value=pos;
+  document.getElementById('durSelect').value='30';
+  updatePrice();
+  document.querySelectorAll('.pkg-card').forEach(c=>c.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  document.getElementById('bookingForm').scrollIntoView({behavior:'smooth',block:'start'});
+}
+</script>
+{% endblock %}

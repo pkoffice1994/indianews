@@ -13,5 +13,6 @@ urlpatterns = [
     path('page/<slug:slug>/',         views.page_view,         name='page'),
     path('api/weather/',              views.weather_api,       name='weather_api'),
     path('api/ad-click/<int:ad_id>/', views.ad_click,          name='ad_click'),
+    path('advertise/',                views.advertise_view,    name='advertise'),
     path('<slug:slug>/',              views.news_detail,       name='news_detail'),
 ]

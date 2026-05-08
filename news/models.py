@@ -369,3 +369,72 @@ class SystemSetting(models.Model):
     def get_settings(cls):
         obj, _ = cls.objects.get_or_create(pk=1)
         return obj
+
+
+class AdBooking(models.Model):
+    STATUS_CHOICES = [
+        ('pending',  'Pending Review'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('active',   'Active'),
+        ('expired',  'Expired'),
+    ]
+    POSITIONS = [
+        ('header',       'Header Banner (728×90)',      15000),
+        ('home_top',     'Home Top Banner (970×90)',    12000),
+        ('sidebar_top',  'Sidebar Box (300×250)',        8000),
+        ('sidebar_bottom','Sidebar Tall (300×600)',      10000),
+        ('in_content',   'Article Mid (336×280)',        6000),
+        ('footer',       'Footer Banner (728×90)',       5000),
+    ]
+    DURATION_CHOICES = [
+        (7,  '7 Days'),
+        (15, '15 Days'),
+        (30, '1 Month'),
+        (90, '3 Months'),
+    ]
+
+    # Client info
+    client_name    = models.CharField('Your Name', max_length=100)
+    client_email   = models.CharField('Email', max_length=100)
+    client_phone   = models.CharField('Phone / WhatsApp', max_length=20)
+    company_name   = models.CharField('Company / Brand Name', max_length=100, blank=True)
+
+    # Ad details
+    position       = models.CharField(max_length=30, choices=[(p[0], p[1]) for p in POSITIONS])
+    duration_days  = models.IntegerField(choices=DURATION_CHOICES, default=30)
+    banner_image   = models.ImageField('Banner Image', upload_to='ad_bookings/', blank=True, null=True)
+    banner_url     = models.URLField('Banner Image URL', blank=True)
+    website_url    = models.URLField('Your Website URL')
+    ad_title       = models.CharField('Ad Title / Caption', max_length=200, blank=True)
+    message        = models.TextField('Additional Message', blank=True)
+
+    # Pricing
+    total_price    = models.PositiveIntegerField(default=0)
+
+    # Status
+    status         = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    admin_note     = models.TextField('Admin Note', blank=True)
+
+    # Timestamps
+    created_at     = models.DateTimeField(auto_now_add=True)
+    updated_at     = models.DateTimeField(auto_now=True)
+    start_date     = models.DateField(null=True, blank=True)
+    end_date       = models.DateField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Ad Booking'
+        verbose_name_plural = 'Ad Bookings'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.client_name} — {self.get_position_display()} ({self.status})"
+
+    @property
+    def size_label(self):
+        sizes = {
+            'header': '728×90', 'home_top': '970×90',
+            'sidebar_top': '300×250', 'sidebar_bottom': '300×600',
+            'in_content': '336×280', 'footer': '728×90',
+        }
+        return sizes.get(self.position, '')

@@ -4,7 +4,7 @@ from django.utils import timezone
 from .models import (
     Category, SubCategory, Tag, News, ShortNews, EPaper,
     FeaturedSection, AdSpace, SiteUser, Comment, CommentFlag,
-    Page, Role, StaffMember, SystemSetting
+    Page, Role, StaffMember, SystemSetting, AdBooking
 )
 
 admin.site.site_header  = "India News — Admin Panel"
@@ -245,3 +245,47 @@ class SystemSettingAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+@admin.register(AdBooking)
+class AdBookingAdmin(admin.ModelAdmin):
+    list_display  = ('client_name','client_phone','company_name','position','duration_days','total_price','status','created_at')
+    list_filter   = ('status','position')
+    search_fields = ('client_name','client_email','client_phone','company_name')
+    list_editable = ('status',)
+    readonly_fields = ('created_at','updated_at','impressions_count')
+    fieldsets = (
+        ('Client Info', {'fields': ('client_name','client_email','client_phone','company_name')}),
+        ('Ad Details',  {'fields': ('position','duration_days','banner_image','banner_url','website_url','ad_title','message','total_price')}),
+        ('Status',      {'fields': ('status','admin_note','start_date','end_date')}),
+        ('Timestamps',  {'fields': ('created_at','updated_at')}),
+    )
+    actions = ['approve_and_activate', 'reject_booking']
+
+    def impressions_count(self, obj): return '—'
+    impressions_count.short_description = 'Impressions'
+
+    def approve_and_activate(self, request, queryset):
+        from django.utils import timezone
+        import datetime
+        for booking in queryset:
+            # Create actual AdSpace when approved
+            from .models import AdSpace
+            AdSpace.objects.create(
+                name=f"{booking.client_name} — {booking.get_position_display()}",
+                position=booking.position,
+                image_url=booking.banner_url,
+                link_url=booking.website_url,
+                is_active=True,
+                starts_at=timezone.now(),
+                ends_at=timezone.now() + datetime.timedelta(days=booking.duration_days),
+            )
+            booking.status = 'active'
+            booking.save()
+        self.message_user(request, f'{queryset.count()} bookings approved and ads activated!')
+    approve_and_activate.short_description = '✅ Approve & Activate Ad'
+
+    def reject_booking(self, request, queryset):
+        queryset.update(status='rejected')
+        self.message_user(request, f'{queryset.count()} bookings rejected.')
+    reject_booking.short_description = '❌ Reject Booking'
