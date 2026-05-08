@@ -7,6 +7,24 @@ from django.views.decorators.http import require_GET
 from .models import News, Category, Tag, Page, EPaper, ShortNews, SystemSetting, Comment
 
 
+def get_ads_context():
+    """Get all active ads grouped by position for template context."""
+    from .models import AdSpace
+    from django.utils import timezone
+    now = timezone.now()
+    active_ads = AdSpace.objects.filter(
+        is_active=True
+    ).filter(
+        models.Q(starts_at__isnull=True) | models.Q(starts_at__lte=now)
+    ).filter(
+        models.Q(ends_at__isnull=True) | models.Q(ends_at__gte=now)
+    )
+    ads = {}
+    for ad in active_ads:
+        ads.setdefault(ad.position, []).append(ad)
+    return ads
+
+
 def home(request):
     s = SystemSetting.get_settings()
     cats = Category.objects.filter(is_active=True, show_in_nav=True).order_by('order')
@@ -34,6 +52,7 @@ def home(request):
         'featured': featured, 'latest': latest,
         'videos': videos, 'cat_sections': cat_sections,
         'epaper_latest': epaper, 'shorts': shorts, 'popular': popular,
+        'ads': get_ads_context(),
     })
 
 
@@ -57,7 +76,7 @@ def news_detail(request, slug):
 
     return render(request, 'news/detail.html', {
         'article': article, 'related': related,
-        'comments': comments, 'site': s,
+        'comments': comments, 'site': s, 'ads': get_ads_context(),
     })
 
 
@@ -73,7 +92,7 @@ def category_view(request, slug):
     paged = Paginator(qs, SystemSetting.get_settings().items_per_page).get_page(request.GET.get('page'))
     return render(request, 'news/category.html', {
         'category': cat, 'subcategory': subcategory,
-        'page_obj': paged, 'site': SystemSetting.get_settings(),
+        'page_obj': paged, 'site': SystemSetting.get_settings(), 'ads': get_ads_context(),
     })
 
 
@@ -81,7 +100,7 @@ def tag_view(request, slug):
     tag  = get_object_or_404(Tag, slug=slug)
     qs   = News.objects.filter(tags=tag, status='published').order_by('-published_at')
     paged = Paginator(qs, 12).get_page(request.GET.get('page'))
-    return render(request, 'news/tag.html', {'tag': tag, 'page_obj': paged, 'site': SystemSetting.get_settings()})
+    return render(request, 'news/tag.html', {'tag': tag, 'page_obj': paged, 'site': SystemSetting.get_settings(), 'ads': get_ads_context()})
 
 
 def search_view(request):
@@ -94,12 +113,12 @@ def search_view(request):
             status='published'
         ).distinct().order_by('-published_at')
     paged = Paginator(qs, 12).get_page(request.GET.get('page'))
-    return render(request, 'news/search.html', {'query': q, 'page_obj': paged, 'site': SystemSetting.get_settings()})
+    return render(request, 'news/search.html', {'query': q, 'page_obj': paged, 'site': SystemSetting.get_settings(), 'ads': get_ads_context()})
 
 
 def epaper_view(request):
     epapers = EPaper.objects.filter(is_active=True).order_by('-publish_date')
-    return render(request, 'news/epaper.html', {'epapers': epapers, 'site': SystemSetting.get_settings()})
+    return render(request, 'news/epaper.html', {'epapers': epapers, 'site': SystemSetting.get_settings(), 'ads': get_ads_context()})
 
 
 def videos_view(request):
@@ -108,12 +127,13 @@ def videos_view(request):
     return render(request, 'news/videos.html', {
         'page_obj': paged,
         'site': SystemSetting.get_settings(),
+        'ads': get_ads_context(),
     })
 
 
 def page_view(request, slug):
     page = get_object_or_404(Page, slug=slug, is_active=True)
-    return render(request, 'pages/page.html', {'page': page, 'site': SystemSetting.get_settings()})
+    return render(request, 'pages/page.html', {'page': page, 'site': SystemSetting.get_settings(), 'ads': get_ads_context()})
 
 
 @require_GET
@@ -198,4 +218,5 @@ def dashboard_view(request):
         'categories': categories,
         'recent_news': recent_news,
         'daily_data': daily_data,
+        'ads': get_ads_context(),
     })
