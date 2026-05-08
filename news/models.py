@@ -140,13 +140,29 @@ class News(models.Model):
 
 
 class ShortNews(models.Model):
-    title      = models.CharField("शीर्षक", max_length=300)
-    content    = models.TextField(blank=True)
-    image_url  = models.URLField(blank=True)
-    category   = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
-    is_active  = models.BooleanField(default=True)
-    order      = models.PositiveIntegerField(default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
+    TYPE_CHOICES = [
+        ('text',  'Text Only'),
+        ('video', 'Short Video'),
+    ]
+    title       = models.CharField("Title", max_length=300)
+    content     = models.TextField("Description", blank=True)
+    news_type   = models.CharField("Type", max_length=10, choices=TYPE_CHOICES, default='text')
+
+    # Image
+    image_url   = models.URLField("Thumbnail Image URL", blank=True)
+    image       = models.ImageField("Upload Thumbnail", upload_to='short_news/', blank=True, null=True)
+
+    # Video — upload OR URL
+    video_file  = models.FileField("Upload Video (MP4)", upload_to='short_videos/', blank=True, null=True,
+                                   help_text="Upload MP4 video directly")
+    video_url   = models.URLField("Video URL", blank=True,
+                                  help_text="YouTube / Instagram Reels / Direct MP4 URL")
+
+    category    = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+    is_active   = models.BooleanField(default=True)
+    order       = models.PositiveIntegerField(default=0)
+    views       = models.PositiveIntegerField(default=0)
+    created_at  = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = "Short News"
@@ -154,6 +170,43 @@ class ShortNews(models.Model):
         ordering = ['-created_at']
 
     def __str__(self): return self.title[:60]
+
+    @property
+    def has_video(self):
+        return bool(self.video_file or self.video_url)
+
+    @property
+    def get_video_src(self):
+        if self.video_file:
+            return self.video_file.url
+        return self.video_url
+
+    @property
+    def is_youtube(self):
+        url = self.video_url or ''
+        return 'youtube.com' in url or 'youtu.be' in url
+
+    @property
+    def youtube_embed(self):
+        import re
+        url = self.video_url or ''
+        m = re.search(r'(?:v=|youtu\.be/)([A-Za-z0-9_-]{11})', url)
+        if m:
+            return f"https://www.youtube.com/embed/{m.group(1)}?autoplay=1&mute=1"
+        return ''
+
+    @property
+    def get_thumbnail(self):
+        if self.image:
+            return self.image.url
+        if self.image_url:
+            return self.image_url
+        if self.is_youtube and self.youtube_embed:
+            import re
+            m = re.search(r'embed/([A-Za-z0-9_-]{11})', self.youtube_embed)
+            if m:
+                return f"https://img.youtube.com/vi/{m.group(1)}/hqdefault.jpg"
+        return ''
 
 
 class EPaper(models.Model):

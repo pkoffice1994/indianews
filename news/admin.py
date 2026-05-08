@@ -138,8 +138,34 @@ class NewsAdmin(admin.ModelAdmin):
 
 @admin.register(ShortNews)
 class ShortNewsAdmin(admin.ModelAdmin):
-    list_display  = ('title', 'category', 'is_active', 'order', 'created_at')
+    list_display  = ('title', 'news_type', 'has_video_display', 'category', 'views', 'is_active', 'order', 'created_at')
     list_editable = ('is_active', 'order')
+    list_filter   = ('news_type', 'is_active', 'category')
+    search_fields = ('title', 'content')
+    fieldsets = (
+        ('Content', {
+            'fields': ('title', 'content', 'news_type', 'category', 'is_active', 'order')
+        }),
+        ('Thumbnail Image', {
+            'fields': ('image', 'image_url'),
+            'description': 'Upload a thumbnail image OR provide an image URL.'
+        }),
+        ('Video', {
+            'fields': ('video_file', 'video_url'),
+            'description': 'Upload an MP4 video file OR paste a YouTube / direct video URL. YouTube thumbnails are auto-fetched.'
+        }),
+    )
+
+    def has_video_display(self, obj):
+        if obj.has_video:
+            if obj.is_youtube:
+                return format_html('<span style="color:red;font-weight:600">▶ YouTube</span>')
+            elif obj.video_file:
+                return format_html('<span style="color:green;font-weight:600">▶ Uploaded</span>')
+            else:
+                return format_html('<span style="color:blue;font-weight:600">▶ URL</span>')
+        return format_html('<span style="color:#aaa">— Text</span>')
+    has_video_display.short_description = 'Video'
 
 
 @admin.register(EPaper)
