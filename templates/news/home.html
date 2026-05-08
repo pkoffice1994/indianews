@@ -26,7 +26,7 @@
            onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&q=80'">
       <div class="hero-ov">
         {% if top_story.is_breaking %}<div class="brk-tag">🔴 Breaking News</div>{% endif %}
-        <div class="cat-tag">{{ top_story.category.name_en|default:top_story.category.name }}</div>
+        {% if top_story.category %}<div class="cat-tag">{{ top_story.category.name_en|default:top_story.category.name }}</div>{% endif %}
         <div class="hero-title">{{ top_story.title_hi }}</div>
         {% if top_story.summary_hi %}
         <p style="font-size:14px;color:rgba(255,255,255,.75);margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ top_story.summary_hi }}</p>
@@ -46,7 +46,7 @@
              onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&q=80'"
              style="width:95px;height:75px;object-fit:cover;border-radius:4px;flex-shrink:0">
         <div style="overflow:hidden">
-          <div class="cat-tag" style="font-size:9px">{{ n.category.name_en|default:n.category.name }}</div>
+          <div class="cat-tag" style="font-size:9px">{% if n.category %}{{ n.category.name_en|default:n.category.name }}{% endif %}</div>
           <div style="font-size:14px;font-weight:700;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ n.title_hi }}</div>
           <div class="nmeta" style="margin-top:4px"><i class="far fa-clock"></i> {{ n.published_at|timesince }} ago</div>
         </div>
@@ -72,7 +72,7 @@
             <img src="{{ n.get_image }}" alt="{{ n.title_hi }}"
                  onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80'">
             <div class="ncard-body">
-              <div class="cat-tag">{{ n.category.name_en|default:n.category.name }}</div>
+              <div class="cat-tag">{% if n.category %}{{ n.category.name_en|default:n.category.name }}{% endif %}</div>
               <div class="ntitle">{{ n.title_hi }}</div>
               <div class="nmeta">
                 <span><i class="far fa-clock"></i> {{ n.published_at|timesince }}</span>
@@ -99,8 +99,8 @@
       {% for sec in cat_sections %}
       <div class="mb30">
         <div class="sec-head">
-          <h2 style="color:{{ sec.category.color }}">{{ sec.category.name_en|default:sec.category.name }}</h2>
-          <a href="/category/{{ sec.category.slug }}/">View All →</a>
+          <h2 style="color:{% if sec.category %}{{ sec.category.color }}{% else %}#e60026{% endif %}">{% if sec.category %}{{ sec.category.name_en|default:sec.category.name }}{% endif %}</h2>
+          <a href="/category/{% if sec.category %}{{ sec.category.slug }}{% endif %}/">View All →</a>
         </div>
         <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px">
           <a href="/{{ sec.news.0.slug }}/" class="ncard">
@@ -108,7 +108,7 @@
                  onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80'"
                  style="height:210px;width:100%;object-fit:cover">
             <div class="ncard-body">
-              <div class="cat-tag">{{ sec.category.name_en|default:sec.category.name }}</div>
+              <div class="cat-tag">{% if sec.category %}{{ sec.category.name_en|default:sec.category.name }}{% endif %}</div>
               <div class="ntitle" style="-webkit-line-clamp:3;font-size:17px">{{ sec.news.0.title_hi }}</div>
               <div class="nmeta"><i class="far fa-clock"></i> {{ sec.news.0.published_at|timesince }} ago</div>
             </div>

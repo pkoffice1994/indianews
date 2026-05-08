@@ -119,7 +119,7 @@
           <a href="/{{ n.slug }}/" class="ncard">
             <img src="{{ n.get_image }}" alt="{{ n.title_hi }}" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80'">
             <div class="ncard-body">
-              <div class="cat-tag">{{ n.category.name_en|default:n.category.name }}</div>
+              {% if n.category %}<div class="cat-tag">{{ n.category.name_en|default:n.category.name }}</div>{% endif %}
               <div class="ntitle">{{ n.title_hi }}</div>
               <div class="nmeta"><i class="far fa-clock"></i> {{ n.published_at|timesince }} ago</div>
             </div>
