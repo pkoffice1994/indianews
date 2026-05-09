@@ -21,11 +21,7 @@
 .lang-bar-in{max-width:1300px;margin:0 auto;display:flex;align-items:center;padding:0 12px;height:34px;}
 .lang-btn{padding:0 14px;height:34px;font-size:12px;font-weight:700;border:none;background:none;cursor:pointer;font-family:var(--hf);color:var(--mid);border-bottom:2px solid transparent;}
 .lang-btn.active{color:var(--red);border-bottom-color:var(--red);}
-.cat-scroll{background:var(--white);border-bottom:2px solid var(--border);overflow-x:auto;scrollbar-width:none;white-space:nowrap;}
-.cat-scroll::-webkit-scrollbar{display:none;}
-.cat-scroll-in{display:inline-flex;padding:0 8px;}
-.cat-pill{display:inline-flex;align-items:center;padding:10px 13px;font-size:13px;font-weight:600;color:var(--mid);white-space:nowrap;border-bottom:2px solid transparent;cursor:pointer;}
-.cat-pill.active,.cat-pill:hover{color:var(--red);border-bottom-color:var(--red);}
+
 .at-hero{position:relative;display:block;overflow:hidden;color:#fff;}
 .at-hero img{width:100%;height:420px;object-fit:cover;display:block;}
 .at-hero-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.92) 0%,rgba(0,0,0,.2) 55%,transparent 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:16px 14px;}
@@ -101,20 +97,7 @@
 
 <div style="max-width:1300px;margin:0 auto;padding:0 12px;">
 
-  <!-- Category scroll -->
-  <div class="cat-scroll" style="margin:0 -12px;">
-    <div class="cat-scroll-in">
-      <span class="cat-pill active" onclick="filterCat('all',this)">
-        <span class="lang-hi">सभी</span><span class="lang-en" style="display:none">All</span>
-      </span>
-      {% for cat in categories %}
-      <span class="cat-pill" onclick="filterCat('{{cat.slug}}',this)">
-        <span class="lang-hi">{{cat.name}}</span>
-        <span class="lang-en" style="display:none">{{cat.name_en|default:cat.name}}</span>
-      </span>
-      {% endfor %}
-    </div>
-  </div>
+
 
   <!-- Short videos row (mobile) -->
   {% if shorts %}
