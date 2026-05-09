@@ -39,9 +39,14 @@ class SubCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug')
+    list_display = ('name', 'slug', 'news_count')
     search_fields = ('name',)
     prepopulated_fields = {'slug': ('name',)}
+
+    def news_count(self, obj):
+        count = obj.news.filter(status='published').count()
+        return format_html('<span style="color:#e60026;font-weight:600">{}</span> articles', count)
+    news_count.short_description = 'Published Articles'
 
 
 @admin.register(News)
@@ -53,10 +58,9 @@ class NewsAdmin(admin.ModelAdmin):
                       ('published_at', admin.DateFieldListFilter))
     search_fields  = ('title_hi', 'title_en', 'content_hi')
     list_editable  = ('is_breaking', 'is_featured')
-    prepopulated_fields = {'slug': ('title_en',)}
     filter_horizontal = ('tags',)
     date_hierarchy = 'published_at'
-    readonly_fields = ('views', 'read_time', 'uuid', 'created_at', 'updated_at')
+    readonly_fields = ('views', 'read_time', 'uuid', 'created_at', 'updated_at', 'slug_preview')
     actions = ['action_publish', 'action_reject', 'action_breaking_on', 'action_breaking_off']
     list_per_page = 25
 
@@ -69,7 +73,8 @@ class NewsAdmin(admin.ModelAdmin):
             'classes': ('collapse',),
         }),
         ('Classification', {
-            'fields': ('category', 'subcategory', 'tags', 'slug', 'location'),
+            'fields': ('category', 'subcategory', 'tags', 'slug', 'slug_preview', 'location'),
+            'description': 'Slug is auto-generated from Title (Hindi). You can edit it manually if needed.'
         }),
         ('Media', {
             'fields': ('featured_image', 'featured_image_url', 'image_caption', 'video_url', 'is_video_news'),
@@ -87,6 +92,18 @@ class NewsAdmin(admin.ModelAdmin):
         }),
     )
 
+    class Media:
+        js = ('admin/js/news_autoslug.js',)
+
+    def slug_preview(self, obj):
+        if obj.slug:
+            return format_html(
+                '<span style="color:#888;font-size:12px;font-family:monospace">'
+                'URL: /{}/ &nbsp; <a href="/{}" target="_blank" style="color:#e60026">Preview ↗</a>'
+                '</span>', obj.slug, obj.slug)
+        return format_html('<span style="color:#aaa;font-size:12px">Will be auto-generated from Title (Hindi)</span>')
+    slug_preview.short_description = 'URL Preview'
+
     def thumb(self, obj):
         url = obj.get_image()
         if url:
@@ -98,7 +115,7 @@ class NewsAdmin(admin.ModelAdmin):
         b = ' 🔴' if obj.is_breaking else ''
         f = ' ⭐' if obj.is_featured else ''
         return format_html('<b>{}</b>{}{}', obj.title_hi[:65], b, f)
-    title_short.short_description = 'Headline (Hindi)'
+    title_short.short_description = 'Headline'
 
     def status_badge(self, obj):
         colors = {'published':'#28a745','draft':'#6c757d','pending':'#ffc107','rejected':'#dc3545'}
