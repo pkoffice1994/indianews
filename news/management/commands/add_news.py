@@ -305,18 +305,25 @@ class Command(BaseCommand):
 
         # Ensure categories exist
         CATS = [
-            ("देश", "desh", "#e60026"), ("राजनीति", "rajneeti", "#c0392b"),
-            ("विश्व", "vishwa", "#2980b9"), ("खेल", "khel", "#27ae60"),
-            ("व्यापार", "vyapaar", "#f39c12"), ("तकनीक", "takneek", "#8e44ad"),
-            ("मनोरंजन", "manoranjan", "#e67e22"), ("शिक्षा", "shiksha", "#16a085"),
-            ("स्वास्थ्य", "swasthya", "#e74c3c"), ("अपराध", "apradh", "#2c3e50"),
+            ("देश",       "desh",       "India",         "#e60026"),
+            ("राजनीति",   "rajneeti",   "Politics",      "#c0392b"),
+            ("विश्व",     "vishwa",     "World",         "#2980b9"),
+            ("खेल",       "khel",       "Sports",        "#27ae60"),
+            ("व्यापार",   "vyapaar",    "Business",      "#f39c12"),
+            ("तकनीक",     "takneek",    "Technology",    "#8e44ad"),
+            ("मनोरंजन",   "manoranjan", "Entertainment", "#e67e22"),
+            ("शिक्षा",    "shiksha",    "Education",     "#16a085"),
+            ("स्वास्थ्य", "swasthya",   "Health",        "#e74c3c"),
+            ("अपराध",     "apradh",     "Crime",         "#2c3e50"),
         ]
-        for i, (name, slug, color) in enumerate(CATS):
-            Category.objects.get_or_create(
-                slug=slug,
-                defaults={'name': name, 'name_en': slug.title(), 'color': color,
-                          'show_in_nav': True, 'order': i, 'is_active': True}
-            )
+        for i, (name, slug, name_en, color) in enumerate(CATS):
+            cat, created = Category.objects.get_or_create(slug=slug, defaults={
+                'name': name, 'name_en': name_en, 'color': color,
+                'show_in_nav': True, 'order': i, 'is_active': True
+            })
+            if not created:
+                # Always update English name to correct value
+                Category.objects.filter(slug=slug).update(name_en=name_en)
 
         created = 0
         for item in NEWS_DATA:

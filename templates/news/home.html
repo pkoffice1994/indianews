@@ -104,8 +104,15 @@
   <!-- Category scroll -->
   <div class="cat-scroll" style="margin:0 -12px;">
     <div class="cat-scroll-in">
-      <span class="cat-pill active" onclick="filterCat('all',this)">All</span>
-      {% for cat in categories %}<span class="cat-pill" onclick="filterCat('{{cat.slug}}',this)">{{cat.name_en|default:cat.name}}</span>{% endfor %}
+      <span class="cat-pill active" onclick="filterCat('all',this)">
+        <span class="lang-hi">सभी</span><span class="lang-en" style="display:none">All</span>
+      </span>
+      {% for cat in categories %}
+      <span class="cat-pill" onclick="filterCat('{{cat.slug}}',this)">
+        <span class="lang-hi">{{cat.name}}</span>
+        <span class="lang-en" style="display:none">{{cat.name_en|default:cat.name}}</span>
+      </span>
+      {% endfor %}
     </div>
   </div>
 
