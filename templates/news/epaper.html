@@ -65,14 +65,18 @@
   {% if epapers %}
   <div class="ep-grid">
     {% for ep in epapers %}
-    <div class="ep-card" onclick="openViewer('{{ ep.pdf_file.url|default:ep.pdf_url }}', '{{ ep.title }}', '{{ ep.publish_date }}', {% if ep.pdf_file or ep.pdf_url %}true{% else %}false{% endif %}, '{% if ep.thumbnail %}{{ ep.thumbnail.url }}{% endif %}')">
+    {% with img_src=ep.thumbnail.url|default:ep.image_url thumb_src=ep.thumbnail.url|default:ep.image_url pdf_src=ep.pdf_file.url|default:ep.pdf_url %}
+    <div class="ep-card" onclick="openViewer('{{ pdf_src }}', '{{ ep.title }}', '{{ ep.publish_date }}', '{{ img_src }}')">
       <div class="ep-card-thumb">
-        {% if ep.thumbnail %}
-          <img src="{{ ep.thumbnail.url }}" alt="{{ ep.title }}" loading="lazy">
-        {% elif ep.pdf_url and not ep.pdf_url|lower|slice:"-4:" == ".pdf" %}
-          <img src="{{ ep.pdf_url }}" alt="{{ ep.title }}" loading="lazy" onerror="this.parentNode.innerHTML='<div style=text-align:center><div style=font-size:52px>📰</div></div>'">
+        {% if ep.thumbnail or ep.image_url %}
+          <img src="{{ ep.thumbnail.url|default:ep.image_url }}" alt="{{ ep.title }}" loading="lazy"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div style="display:none;flex-direction:column;align-items:center;justify-content:center;height:100%;width:100%;position:absolute;top:0;left:0;">
+            <div style="font-size:52px;margin-bottom:6px;">📰</div>
+            <div style="color:rgba(255,255,255,.7);font-size:13px;font-weight:700;">{{ ep.title|truncatechars:30 }}</div>
+          </div>
         {% else %}
-          <div style="text-align:center;">
+          <div style="text-align:center;width:100%;">
             <div style="font-size:52px;margin-bottom:6px;">📰</div>
             <div style="color:rgba(255,255,255,.7);font-size:13px;font-weight:700;">{{ ep.title|truncatechars:30 }}</div>
           </div>
@@ -86,7 +90,7 @@
           {% if ep.edition %} &nbsp;·&nbsp; {{ ep.edition }}{% endif %}
         </div>
         <div class="ep-card-btn">
-          <button class="ep-btn ep-btn-read" onclick="event.stopPropagation();openViewer('{{ ep.pdf_file.url|default:ep.pdf_url }}','{{ ep.title }}','{{ ep.publish_date }}',{% if ep.pdf_file or ep.pdf_url %}true{% else %}false{% endif %},'{% if ep.thumbnail %}{{ ep.thumbnail.url }}{% endif %}')">
+          <button class="ep-btn ep-btn-read" onclick="event.stopPropagation();openViewer('{{ pdf_src }}','{{ ep.title }}','{{ ep.publish_date }}','{{ img_src }}')">
             <i class="fas fa-book-open"></i> Read
           </button>
           {% if ep.pdf_file or ep.pdf_url %}
@@ -97,6 +101,7 @@
         </div>
       </div>
     </div>
+    {% endwith %}
     {% endfor %}
   </div>
 
@@ -132,7 +137,10 @@
 <script>
 let currentZoom = 100;
 
-function openViewer(url, title, date, hasPdf, thumb) {
+function openViewer(url, title, date, imgUrl) {
+  // url = pdf url (may be empty), imgUrl = image/thumbnail url
+  const thumb = imgUrl || '';
+  const hasPdf = url && url.trim() !== '';
   const modal = document.getElementById('epModal');
   const body  = document.getElementById('epModalBody');
   const titleEl = document.getElementById('epModalTitle');

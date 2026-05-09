@@ -212,9 +212,11 @@ class ShortNews(models.Model):
 class EPaper(models.Model):
     title        = models.CharField(max_length=200)
     edition      = models.CharField(max_length=100, blank=True)
-    pdf_file     = models.FileField(upload_to='epaper/%Y/%m/', blank=True, null=True)
-    pdf_url      = models.URLField(blank=True)
-    thumbnail    = models.ImageField(upload_to='epaper/thumb/', blank=True, null=True)
+    pdf_file     = models.FileField("PDF File (upload)", upload_to='epaper/%Y/%m/', blank=True, null=True)
+    pdf_url      = models.URLField("PDF URL (external)", blank=True, help_text="Paste Google Drive / Dropbox public link")
+    thumbnail    = models.ImageField("Newspaper Image (upload)", upload_to='epaper/thumb/', blank=True, null=True)
+    image_url    = models.URLField("Newspaper Image URL", blank=True,
+                                   help_text="Paste image URL — use this on Render (uploaded files get deleted on restart)")
     publish_date = models.DateField()
     is_active    = models.BooleanField(default=True)
     created_at   = models.DateTimeField(auto_now_add=True)
