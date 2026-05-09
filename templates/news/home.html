@@ -86,10 +86,16 @@
 </style>
 
 <!-- Language toggle -->
-<div class="lang-bar">
-  <div class="lang-bar-in">
-    <button class="lang-btn active" id="btnHI" onclick="setLang('hi')">हिंदी</button>
-    <button class="lang-btn" id="btnEN" onclick="setLang('en')">English</button>
+<div class="lang-bar" style="background:#f7f7f7;border-bottom:1px solid #eee;">
+  <div style="max-width:1300px;margin:0 auto;padding:0 12px;height:36px;display:flex;align-items:center;justify-content:space-between;">
+    <span style="font-size:12px;color:#888;font-weight:600;">📰 India News</span>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:12px;color:#888;">Language:</span>
+      <div style="display:flex;background:#fff;border:1.5px solid var(--border);border-radius:20px;overflow:hidden;">
+        <button id="btnHI" onclick="setLang('hi')" style="padding:3px 12px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:var(--hf);background:var(--red);color:#fff;border-radius:20px;">हिंदी</button>
+        <button id="btnEN" onclick="setLang('en')" style="padding:3px 12px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:var(--hf);background:transparent;color:var(--mid);border-radius:20px;">EN</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -324,8 +330,10 @@ function setLang(lang){
 function applyLang(lang){
   document.querySelectorAll('.lang-hi').forEach(el=>el.style.display=lang==='hi'?'':'none');
   document.querySelectorAll('.lang-en').forEach(el=>el.style.display=lang==='en'?'':'none');
-  document.getElementById('btnHI').classList.toggle('active',lang==='hi');
-  document.getElementById('btnEN').classList.toggle('active',lang==='en');
+  const hi=document.getElementById('btnHI');
+  const en=document.getElementById('btnEN');
+  if(hi){hi.style.background=lang==='hi'?'var(--red)':'transparent';hi.style.color=lang==='hi'?'#fff':'var(--mid)';}
+  if(en){en.style.background=lang==='en'?'var(--red)':'transparent';en.style.color=lang==='en'?'#fff':'var(--mid)';}
   // Fallback: if en empty, show hi
   if(lang==='en'){
     document.querySelectorAll('.lang-en').forEach(el=>{
