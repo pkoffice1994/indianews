@@ -36,7 +36,7 @@
 .ep-modal-btn{padding:6px 14px;border-radius:4px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:var(--hf);}
 .ep-modal-btn.dl{background:var(--red);color:#fff;}
 .ep-modal-btn.cl{background:rgba(255,255,255,.12);color:#fff;}
-.ep-modal-body{flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:8px;}
+.ep-modal-body{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:12px;background:#1a1a1a;}
 .ep-viewer{width:100%;height:100%;border:none;border-radius:6px;background:#fff;}
 .ep-img-viewer{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;}
 
@@ -68,7 +68,9 @@
     <div class="ep-card" onclick="openViewer('{{ ep.pdf_file.url|default:ep.pdf_url }}', '{{ ep.title }}', '{{ ep.publish_date }}', {% if ep.pdf_file or ep.pdf_url %}true{% else %}false{% endif %}, '{% if ep.thumbnail %}{{ ep.thumbnail.url }}{% endif %}')">
       <div class="ep-card-thumb">
         {% if ep.thumbnail %}
-          <img src="{{ ep.thumbnail.url }}" alt="{{ ep.title }}">
+          <img src="{{ ep.thumbnail.url }}" alt="{{ ep.title }}" loading="lazy">
+        {% elif ep.pdf_url and not ep.pdf_url|lower|slice:"-4:" == ".pdf" %}
+          <img src="{{ ep.pdf_url }}" alt="{{ ep.title }}" loading="lazy" onerror="this.parentNode.innerHTML='<div style=text-align:center><div style=font-size:52px>📰</div></div>'">
         {% else %}
           <div style="text-align:center;">
             <div style="font-size:52px;margin-bottom:6px;">📰</div>
@@ -142,28 +144,29 @@ function openViewer(url, title, date, hasPdf, thumb) {
   currentZoom = 100;
   document.getElementById('zoomLabel').textContent = '100%';
 
-  if (hasPdf && url) {
-    // PDF viewer — embed like Aaj Tak
-    const isPDF = url.toLowerCase().includes('.pdf') || url.includes('pdf');
-    if (isPDF) {
-      body.innerHTML = `<iframe class="ep-viewer" src="${url}" id="epIframe"></iframe>`;
-      zoom.style.display = 'none';
-    } else {
-      // Image or other
-      body.innerHTML = `<img class="ep-img-viewer" src="${url}" id="epImg" alt="${title}">`;
-      zoom.style.display = 'flex';
-    }
-    dlBtn.href = url;
-    dlBtn.style.display = 'inline-flex';
-  } else if (thumb) {
-    // Only thumbnail available
-    body.innerHTML = `<img class="ep-img-viewer" src="${thumb}" id="epImg" alt="${title}" style="max-height:90vh;">`;
-    zoom.style.display = 'flex';
-    dlBtn.style.display = 'none';
-  } else {
-    body.innerHTML = `<div style="text-align:center;color:#fff;padding:40px;"><div style="font-size:60px;margin-bottom:16px;">📰</div><p style="font-size:16px;opacity:.7">PDF not available</p></div>`;
+  // Determine best source to show
+  const imgUrl = thumb || url;
+  const isPDF  = url && url.toLowerCase().endsWith('.pdf');
+
+  if (isPDF && url) {
+    body.innerHTML = `<iframe class="ep-viewer" src="${url}" id="epIframe"></iframe>`;
     zoom.style.display = 'none';
-    dlBtn.style.display = 'none';
+    dlBtn.href = url; dlBtn.style.display = 'inline-flex';
+
+  } else if (imgUrl) {
+    body.innerHTML = `
+      <div style="overflow:auto;width:100%;height:100%;display:flex;align-items:flex-start;justify-content:center;">
+        <img id="epImg" src="${imgUrl}" alt="${title}"
+          style="max-width:100%;height:auto;border-radius:6px;cursor:zoom-in;transition:transform .2s;"
+          onerror="this.parentNode.innerHTML='<div style=text-align:center;color:#fff;padding:40px><div style=font-size:60px>📰</div><p style=opacity:.7>Image could not load</p></div>'">
+      </div>`;
+    zoom.style.display = 'flex';
+    if (url && url !== thumb) { dlBtn.href = url; dlBtn.style.display = 'inline-flex'; }
+    else dlBtn.style.display = 'none';
+
+  } else {
+    body.innerHTML = `<div style="text-align:center;color:#fff;padding:40px;"><div style="font-size:60px;margin-bottom:16px;">📰</div><p style="font-size:16px;opacity:.7">No content available.<br>Please upload a PDF or image from Admin Panel.</p></div>`;
+    zoom.style.display = 'none'; dlBtn.style.display = 'none';
   }
 
   modal.classList.add('open');
