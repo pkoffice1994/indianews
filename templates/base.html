@@ -284,6 +284,11 @@ footer{background:#0a0a1a;color:rgba(255,255,255,.65);margin-top:40px;}
       <span class="wrange" id="wRange"></span>
     </div>
     <div class="topbar-r">
+      <!-- Language Toggle in topbar -->
+      <div style="display:flex;background:rgba(255,255,255,.1);border-radius:20px;overflow:hidden;flex-shrink:0;">
+        <button id="topBtnHI" onclick="setLang('hi')" style="padding:3px 10px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:var(--hf);background:var(--red);color:#fff;border-radius:20px;transition:all .2s;">हिंदी</button>
+        <button id="topBtnEN" onclick="setLang('en')" style="padding:3px 10px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:var(--hf);background:transparent;color:rgba(255,255,255,.7);border-radius:20px;transition:all .2s;">EN</button>
+      </div>
       {% if site.enable_dark_mode %}
       <div class="dark-tog" onclick="toggleDark()">
         <i class="fas fa-sun" style="font-size:10px;color:#ffd700"></i>
@@ -458,6 +463,43 @@ fetch('/api/weather/').then(r=>r.json()).then(d=>{
     if(rng&&d.temp_max)rng.textContent='↑'+d.temp_max+'°↓'+d.temp_min+'°';
   }
 }).catch(()=>{});
+
+// Language persistence on page load
+(function(){
+  const lang = localStorage.getItem('in_lang') || 'hi';
+  applyLangGlobal(lang);
+})();
+
+function setLang(lang){
+  localStorage.setItem('in_lang', lang);
+  applyLangGlobal(lang);
+}
+
+function applyLangGlobal(lang){
+  // Toggle all lang elements
+  document.querySelectorAll('.lang-hi').forEach(el=>el.style.display=lang==='hi'?'':'none');
+  document.querySelectorAll('.lang-en').forEach(el=>el.style.display=lang==='en'?'':'none');
+  // Update topbar buttons
+  const hi=document.getElementById('topBtnHI');
+  const en=document.getElementById('topBtnEN');
+  if(hi){hi.style.background=lang==='hi'?'var(--red)':'transparent';hi.style.color=lang==='hi'?'#fff':'rgba(255,255,255,.7)';}
+  if(en){en.style.background=lang==='en'?'var(--red)':'transparent';en.style.color=lang==='en'?'#fff':'rgba(255,255,255,.7)';}
+  // Update home page buttons if exist
+  const h2=document.getElementById('btnHI');
+  const e2=document.getElementById('btnEN');
+  if(h2){h2.style.background=lang==='hi'?'var(--red)':'transparent';h2.style.color=lang==='hi'?'#fff':'var(--mid)';}
+  if(e2){e2.style.background=lang==='en'?'var(--red)':'transparent';e2.style.color=lang==='en'?'#fff':'var(--mid)';}
+  // Fallback: show hi if en empty
+  if(lang==='en'){
+    document.querySelectorAll('.lang-en').forEach(el=>{
+      if(!el.textContent.trim()){
+        el.style.display='none';
+        const hi=el.parentNode.querySelector('.lang-hi');
+        if(hi)hi.style.display='';
+      }
+    });
+  }
+}
 
 // Mobile nav
 function openMobNav(){

@@ -1,27 +1,196 @@
 {% extends "base.html" %}
-{% block title %}E-Paper | India News{% endblock %}
+{% block title %}E-Paper — India News{% endblock %}
+
 {% block content %}
-<div class="container page-wrap">
-  <div class="sec-head"><h2>📰 E-Paper Archive</h2></div>
-  <div class="g4">
-    {% for ep in epapers %}
-    <div class="ncard" style="cursor:default">
-      {% if ep.thumbnail %}<img src="{{ ep.thumbnail.url }}" alt="" style="height:200px;object-fit:cover">
-      {% else %}<div style="height:200px;background:linear-gradient(135deg,#e60026,#ff4d6d);display:flex;align-items:center;justify-content:center;font-size:60px">🗞</div>{% endif %}
-      <div class="ncard-body">
-        <div style="font-weight:700;margin-bottom:4px">{{ ep.title }}</div>
-        <div style="font-size:12px;color:var(--mid);margin-bottom:10px">{{ ep.publish_date }} {% if ep.edition %}· {{ ep.edition }}{% endif %}</div>
-        {% if ep.pdf_file or ep.pdf_url %}
-        <a href="{{ ep.pdf_file.url|default:ep.pdf_url }}" target="_blank" style="display:block;background:var(--red);color:#fff;text-align:center;padding:8px;border-radius:4px;font-size:12px;font-weight:700"><i class="fas fa-file-pdf"></i> Read PDF</a>
-        {% endif %}
-      </div>
+<style>
+.ep-wrap{max-width:1200px;margin:0 auto;padding:16px 12px 50px;}
+.ep-hero{background:linear-gradient(135deg,#0a0a1a,#1a0a0a);border-radius:10px;padding:28px 24px;margin-bottom:24px;display:flex;align-items:center;gap:24px;}
+.ep-hero-icon{font-size:56px;flex-shrink:0;}
+.ep-hero-text h1{font-size:24px;font-weight:800;color:#fff;margin-bottom:4px;}
+.ep-hero-text p{font-size:14px;color:rgba(255,255,255,.55);}
+.ep-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+@media(max-width:900px){.ep-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:600px){.ep-grid{grid-template-columns:repeat(2,1fr);}.ep-hero{flex-direction:column;text-align:center;padding:20px 16px;}.ep-hero-icon{font-size:40px;}}
+
+/* Card */
+.ep-card{background:var(--white);border:1px solid var(--border);border-radius:8px;overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;}
+.ep-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.12);}
+.ep-card-thumb{position:relative;height:220px;background:linear-gradient(135deg,#b5001e,#e60026);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.ep-card-thumb img{width:100%;height:100%;object-fit:cover;}
+.ep-card-today{position:absolute;top:10px;left:10px;background:var(--red);color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:3px;letter-spacing:.05em;}
+.ep-card-body{padding:12px;}
+.ep-card-title{font-size:14px;font-weight:700;margin-bottom:4px;color:var(--ink);}
+.ep-card-date{font-size:12px;color:var(--mid);margin-bottom:10px;}
+.ep-card-btn{display:flex;gap:6px;}
+.ep-btn{flex:1;padding:8px 6px;border-radius:5px;font-size:12px;font-weight:700;text-align:center;border:none;cursor:pointer;font-family:var(--hf);transition:opacity .2s;}
+.ep-btn:hover{opacity:.85;}
+.ep-btn-read{background:var(--red);color:#fff;}
+.ep-btn-dl{background:#f0f0f0;color:#333;}
+
+/* Viewer Modal — Aaj Tak style */
+.ep-modal{display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.92);}
+.ep-modal.open{display:flex;flex-direction:column;}
+.ep-modal-bar{background:#111;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:12px;}
+.ep-modal-title{color:#fff;font-size:14px;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ep-modal-btns{display:flex;gap:8px;flex-shrink:0;}
+.ep-modal-btn{padding:6px 14px;border-radius:4px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:var(--hf);}
+.ep-modal-btn.dl{background:var(--red);color:#fff;}
+.ep-modal-btn.cl{background:rgba(255,255,255,.12);color:#fff;}
+.ep-modal-body{flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:8px;}
+.ep-viewer{width:100%;height:100%;border:none;border-radius:6px;background:#fff;}
+.ep-img-viewer{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;}
+
+/* Zoom controls */
+.ep-zoom{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border-radius:20px;padding:4px 8px;}
+.ep-zoom-btn{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;}
+.ep-zoom-btn:hover{background:var(--red);}
+
+@media(max-width:600px){
+  .ep-card-thumb{height:160px;}
+  .ep-modal-bar{padding:8px 10px;}
+  .ep-modal-title{font-size:12px;}
+  .ep-modal-btn{padding:5px 10px;font-size:11px;}
+}
+</style>
+
+<div class="ep-wrap">
+  <div class="ep-hero">
+    <div class="ep-hero-icon">🗞</div>
+    <div class="ep-hero-text">
+      <h1>Digital E-Paper</h1>
+      <p>Read today's newspaper anytime, anywhere — on any device</p>
     </div>
-    {% empty %}
-    <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--mid)">
-      <div style="font-size:50px;margin-bottom:12px">🗞</div>
-      <p>No E-Papers available yet.</p>
+  </div>
+
+  {% if epapers %}
+  <div class="ep-grid">
+    {% for ep in epapers %}
+    <div class="ep-card" onclick="openViewer('{{ ep.pdf_file.url|default:ep.pdf_url }}', '{{ ep.title }}', '{{ ep.publish_date }}', {% if ep.pdf_file or ep.pdf_url %}true{% else %}false{% endif %}, '{% if ep.thumbnail %}{{ ep.thumbnail.url }}{% endif %}')">
+      <div class="ep-card-thumb">
+        {% if ep.thumbnail %}
+          <img src="{{ ep.thumbnail.url }}" alt="{{ ep.title }}">
+        {% else %}
+          <div style="text-align:center;">
+            <div style="font-size:52px;margin-bottom:6px;">📰</div>
+            <div style="color:rgba(255,255,255,.7);font-size:13px;font-weight:700;">{{ ep.title|truncatechars:30 }}</div>
+          </div>
+        {% endif %}
+        {% if forloop.first %}<div class="ep-card-today">TODAY</div>{% endif %}
+      </div>
+      <div class="ep-card-body">
+        <div class="ep-card-title">{{ ep.title }}</div>
+        <div class="ep-card-date">
+          <i class="far fa-calendar"></i> {{ ep.publish_date }}
+          {% if ep.edition %} &nbsp;·&nbsp; {{ ep.edition }}{% endif %}
+        </div>
+        <div class="ep-card-btn">
+          <button class="ep-btn ep-btn-read" onclick="event.stopPropagation();openViewer('{{ ep.pdf_file.url|default:ep.pdf_url }}','{{ ep.title }}','{{ ep.publish_date }}',{% if ep.pdf_file or ep.pdf_url %}true{% else %}false{% endif %},'{% if ep.thumbnail %}{{ ep.thumbnail.url }}{% endif %}')">
+            <i class="fas fa-book-open"></i> Read
+          </button>
+          {% if ep.pdf_file or ep.pdf_url %}
+          <a href="{{ ep.pdf_file.url|default:ep.pdf_url }}" download class="ep-btn ep-btn-dl" onclick="event.stopPropagation()">
+            <i class="fas fa-download"></i> PDF
+          </a>
+          {% endif %}
+        </div>
+      </div>
     </div>
     {% endfor %}
   </div>
+
+  {% else %}
+  <div style="text-align:center;padding:60px 20px;color:var(--mid);">
+    <div style="font-size:60px;margin-bottom:16px;">🗞</div>
+    <h3 style="font-size:20px;margin-bottom:8px;color:var(--ink);">No E-Papers yet</h3>
+    <p style="font-size:14px;margin-bottom:20px;">Upload today's newspaper from the admin panel.</p>
+    <a href="/admin/news/epaper/add/" style="display:inline-block;background:var(--red);color:#fff;padding:10px 24px;border-radius:5px;font-weight:700;font-size:14px;">+ Upload E-Paper</a>
+  </div>
+  {% endif %}
 </div>
+
+<!-- Aaj Tak style Viewer Modal -->
+<div class="ep-modal" id="epModal">
+  <div class="ep-modal-bar">
+    <div class="ep-modal-title" id="epModalTitle">E-Paper</div>
+    <div class="ep-zoom" id="epZoom" style="display:none;">
+      <button class="ep-zoom-btn" onclick="zoomOut()"><i class="fas fa-minus"></i></button>
+      <span style="color:#fff;font-size:12px;min-width:36px;text-align:center;" id="zoomLabel">100%</span>
+      <button class="ep-zoom-btn" onclick="zoomIn()"><i class="fas fa-plus"></i></button>
+    </div>
+    <div class="ep-modal-btns">
+      <a id="epDownloadBtn" href="#" download class="ep-modal-btn dl" style="display:none;text-decoration:none;"><i class="fas fa-download"></i> Download</a>
+      <button class="ep-modal-btn cl" onclick="closeViewer()"><i class="fas fa-times"></i> Close</button>
+    </div>
+  </div>
+  <div class="ep-modal-body" id="epModalBody">
+    <!-- Content injected by JS -->
+  </div>
+</div>
+
+<script>
+let currentZoom = 100;
+
+function openViewer(url, title, date, hasPdf, thumb) {
+  const modal = document.getElementById('epModal');
+  const body  = document.getElementById('epModalBody');
+  const titleEl = document.getElementById('epModalTitle');
+  const dlBtn = document.getElementById('epDownloadBtn');
+  const zoom  = document.getElementById('epZoom');
+
+  titleEl.textContent = title + ' — ' + date;
+  body.innerHTML = '';
+  currentZoom = 100;
+  document.getElementById('zoomLabel').textContent = '100%';
+
+  if (hasPdf && url) {
+    // PDF viewer — embed like Aaj Tak
+    const isPDF = url.toLowerCase().includes('.pdf') || url.includes('pdf');
+    if (isPDF) {
+      body.innerHTML = `<iframe class="ep-viewer" src="${url}" id="epIframe"></iframe>`;
+      zoom.style.display = 'none';
+    } else {
+      // Image or other
+      body.innerHTML = `<img class="ep-img-viewer" src="${url}" id="epImg" alt="${title}">`;
+      zoom.style.display = 'flex';
+    }
+    dlBtn.href = url;
+    dlBtn.style.display = 'inline-flex';
+  } else if (thumb) {
+    // Only thumbnail available
+    body.innerHTML = `<img class="ep-img-viewer" src="${thumb}" id="epImg" alt="${title}" style="max-height:90vh;">`;
+    zoom.style.display = 'flex';
+    dlBtn.style.display = 'none';
+  } else {
+    body.innerHTML = `<div style="text-align:center;color:#fff;padding:40px;"><div style="font-size:60px;margin-bottom:16px;">📰</div><p style="font-size:16px;opacity:.7">PDF not available</p></div>`;
+    zoom.style.display = 'none';
+    dlBtn.style.display = 'none';
+  }
+
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeViewer() {
+  document.getElementById('epModal').classList.remove('open');
+  document.getElementById('epModalBody').innerHTML = '';
+  document.body.style.overflow = '';
+}
+
+function zoomIn() {
+  currentZoom = Math.min(currentZoom + 20, 200);
+  applyZoom();
+}
+function zoomOut() {
+  currentZoom = Math.max(currentZoom - 20, 50);
+  applyZoom();
+}
+function applyZoom() {
+  document.getElementById('zoomLabel').textContent = currentZoom + '%';
+  const img = document.getElementById('epImg');
+  if (img) { img.style.maxWidth = currentZoom + '%'; img.style.maxHeight = 'none'; }
+}
+
+// Close on Escape key
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeViewer(); });
+</script>
 {% endblock %}
