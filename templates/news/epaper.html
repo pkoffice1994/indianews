@@ -188,13 +188,14 @@ function openEpaper(imgUrl, pdfUrl, title, date) {
   document.body.style.overflow = 'hidden';
 
   if (isPdf) {
-    // PDF — use iframe
+    // PDF — use Google Docs viewer (works for all PDFs including Drive links)
     wrap.innerHTML = '';
     const vp = document.getElementById('epViewport');
     vp.classList.add('pdf-mode');
     wrap.style.padding = '0';
-    wrap.innerHTML = '<iframe class="ep-iframe" src="' + pdfUrl + '"></iframe>';
-    vp.style.display = 'block';
+    // Try Google Docs viewer first (works with public URLs)
+    const googleViewerUrl = 'https://docs.google.com/viewer?url=' + encodeURIComponent(pdfUrl) + '&embedded=true';
+    wrap.innerHTML = '<iframe class="ep-iframe" id="pdfFrame" src="' + googleViewerUrl + '" allowfullscreen></iframe>';
     dlBtn.href = pdfUrl; dlBtn.style.display = 'inline-flex';
     minimap.style.display = 'none';
     zoomBar.style.display = 'none';
