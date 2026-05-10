@@ -228,6 +228,23 @@ class EPaper(models.Model):
 
     def __str__(self): return f"{self.title} — {self.publish_date}"
 
+    @property
+    def get_image_url(self):
+        """Safe image URL - never throws error"""
+        if self.thumbnail and self.thumbnail.name:
+            try: return self.thumbnail.url
+            except: pass
+        return self.image_url or ''
+
+    @property  
+    def get_pdf_url(self):
+        """Safe PDF URL"""
+        if self.pdf_file and self.pdf_file.name:
+            try: return self.pdf_file.url
+            except: pass
+        return self.pdf_url or ''
+
+
 
 class FeaturedSection(models.Model):
     TYPES = [

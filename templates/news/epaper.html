@@ -3,205 +3,148 @@
 
 {% block content %}
 <style>
-.ep-wrap{max-width:1200px;margin:0 auto;padding:16px 12px 50px;}
-.ep-hero{background:linear-gradient(135deg,#0a0a1a,#1a0a0a);border-radius:10px;padding:28px 24px;margin-bottom:24px;display:flex;align-items:center;gap:24px;}
-.ep-hero-icon{font-size:56px;flex-shrink:0;}
-.ep-hero-text h1{font-size:24px;font-weight:800;color:#fff;margin-bottom:4px;}
-.ep-hero-text p{font-size:14px;color:rgba(255,255,255,.55);}
-.ep-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
-@media(max-width:900px){.ep-grid{grid-template-columns:repeat(3,1fr);}}
-@media(max-width:600px){.ep-grid{grid-template-columns:repeat(2,1fr);}.ep-hero{flex-direction:column;text-align:center;padding:20px 16px;}.ep-hero-icon{font-size:40px;}}
+.ep-wrap{max-width:1100px;margin:0 auto;padding:20px 12px 50px;}
+.ep-hero{background:linear-gradient(135deg,#0a0a1a,#1a0510);border-radius:10px;padding:24px 20px;margin-bottom:24px;display:flex;align-items:center;gap:20px;}
+.ep-hero h1{font-size:22px;font-weight:800;color:#fff;margin-bottom:4px;}
+.ep-hero p{font-size:13px;color:rgba(255,255,255,.5);}
+.ep-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media(max-width:700px){.ep-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:400px){.ep-grid{grid-template-columns:1fr;}}
 
-/* Card */
 .ep-card{background:var(--white);border:1px solid var(--border);border-radius:8px;overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;}
-.ep-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.12);}
-.ep-card-thumb{position:relative;height:220px;background:linear-gradient(135deg,#b5001e,#e60026);display:flex;align-items:center;justify-content:center;overflow:hidden;}
-.ep-card-thumb img{width:100%;height:100%;object-fit:cover;}
-.ep-card-today{position:absolute;top:10px;left:10px;background:var(--red);color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:3px;letter-spacing:.05em;}
-.ep-card-body{padding:12px;}
-.ep-card-title{font-size:14px;font-weight:700;margin-bottom:4px;color:var(--ink);}
-.ep-card-date{font-size:12px;color:var(--mid);margin-bottom:10px;}
-.ep-card-btn{display:flex;gap:6px;}
-.ep-btn{flex:1;padding:8px 6px;border-radius:5px;font-size:12px;font-weight:700;text-align:center;border:none;cursor:pointer;font-family:var(--hf);transition:opacity .2s;}
-.ep-btn:hover{opacity:.85;}
-.ep-btn-read{background:var(--red);color:#fff;}
-.ep-btn-dl{background:#f0f0f0;color:#333;}
+.ep-card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.12);}
+.ep-thumb{height:200px;background:linear-gradient(135deg,#b5001e,#e60026);position:relative;overflow:hidden;}
+.ep-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.ep-thumb-placeholder{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,.8);}
+.ep-today{position:absolute;top:8px;left:8px;background:var(--red);color:#fff;font-size:9px;font-weight:800;padding:2px 7px;border-radius:3px;letter-spacing:.06em;}
+.ep-body{padding:12px;}
+.ep-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px;}
+.ep-date{font-size:11px;color:var(--mid);margin-bottom:10px;}
+.ep-actions{display:flex;gap:6px;}
+.ep-btn{flex:1;padding:8px;border-radius:5px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:var(--hf);}
+.ep-read{background:var(--red);color:#fff;}
+.ep-dl{background:#f0f0f0;color:#444;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:4px;}
 
-/* Viewer Modal — Aaj Tak style */
-.ep-modal{display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.92);}
-.ep-modal.open{display:flex;flex-direction:column;}
-.ep-modal-bar{background:#111;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:12px;}
-.ep-modal-title{color:#fff;font-size:14px;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ep-modal-btns{display:flex;gap:8px;flex-shrink:0;}
-.ep-modal-btn{padding:6px 14px;border-radius:4px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:var(--hf);}
-.ep-modal-btn.dl{background:var(--red);color:#fff;}
-.ep-modal-btn.cl{background:rgba(255,255,255,.12);color:#fff;}
-.ep-modal-body{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:12px;background:#1a1a1a;}
-.ep-viewer{width:100%;height:100%;border:none;border-radius:6px;background:#fff;}
-.ep-img-viewer{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;}
-
-/* Zoom controls */
-.ep-zoom{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border-radius:20px;padding:4px 8px;}
-.ep-zoom-btn{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;}
-.ep-zoom-btn:hover{background:var(--red);}
-
-@media(max-width:600px){
-  .ep-card-thumb{height:160px;}
-  .ep-modal-bar{padding:8px 10px;}
-  .ep-modal-title{font-size:12px;}
-  .ep-modal-btn{padding:5px 10px;font-size:11px;}
-}
+/* Viewer */
+.ep-modal{display:none;position:fixed;inset:0;z-index:2000;flex-direction:column;background:#111;}
+.ep-modal.open{display:flex;}
+.ep-bar{background:#0a0a0a;padding:10px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.1);}
+.ep-bar-title{color:#fff;font-size:13px;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ep-bar-btn{padding:6px 14px;border-radius:4px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:var(--hf);}
+.ep-bar-dl{background:var(--red);color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:4px;}
+.ep-bar-cl{background:rgba(255,255,255,.1);color:#fff;}
+.ep-content{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:16px;background:#1a1a1a;}
+.ep-content img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;box-shadow:0 4px 30px rgba(0,0,0,.5);}
+.ep-content iframe{width:100%;height:100%;border:none;border-radius:6px;}
 </style>
 
 <div class="ep-wrap">
   <div class="ep-hero">
-    <div class="ep-hero-icon">🗞</div>
-    <div class="ep-hero-text">
+    <div style="font-size:50px;flex-shrink:0;">🗞</div>
+    <div>
       <h1>Digital E-Paper</h1>
-      <p>Read today's newspaper anytime, anywhere — on any device</p>
+      <p>Read today's newspaper anytime, anywhere</p>
     </div>
   </div>
 
   {% if epapers %}
   <div class="ep-grid">
     {% for ep in epapers %}
-    {% with img_src=ep.thumbnail.url|default:ep.image_url thumb_src=ep.thumbnail.url|default:ep.image_url pdf_src=ep.pdf_file.url|default:ep.pdf_url %}
-    <div class="ep-card" onclick="openViewer('{{ pdf_src }}', '{{ ep.title }}', '{{ ep.publish_date }}', '{{ img_src }}')">
-      <div class="ep-card-thumb">
-        {% if ep.thumbnail or ep.image_url %}
-          <img src="{{ ep.thumbnail.url|default:ep.image_url }}" alt="{{ ep.title }}" loading="lazy"
-               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-          <div style="display:none;flex-direction:column;align-items:center;justify-content:center;height:100%;width:100%;position:absolute;top:0;left:0;">
-            <div style="font-size:52px;margin-bottom:6px;">📰</div>
-            <div style="color:rgba(255,255,255,.7);font-size:13px;font-weight:700;">{{ ep.title|truncatechars:30 }}</div>
-          </div>
+    <div class="ep-card">
+      <div class="ep-thumb" onclick="readEpaper('{{ ep.get_image_url }}','{{ ep.get_pdf_url }}','{{ ep.title }}','{{ ep.publish_date }}')">
+        {% if ep.get_image_url %}
+          <img src="{{ ep.get_image_url }}" alt="{{ ep.title }}"
+               onerror="this.style.display='none';">
         {% else %}
-          <div style="text-align:center;width:100%;">
-            <div style="font-size:52px;margin-bottom:6px;">📰</div>
-            <div style="color:rgba(255,255,255,.7);font-size:13px;font-weight:700;">{{ ep.title|truncatechars:30 }}</div>
+          <div class="ep-thumb-placeholder">
+            <div style="font-size:44px;margin-bottom:8px;">📰</div>
+            <div style="font-size:12px;font-weight:600;text-align:center;padding:0 12px;">{{ ep.title }}</div>
           </div>
         {% endif %}
-        {% if forloop.first %}<div class="ep-card-today">TODAY</div>{% endif %}
+        {% if forloop.first %}<div class="ep-today">TODAY</div>{% endif %}
       </div>
-      <div class="ep-card-body">
-        <div class="ep-card-title">{{ ep.title }}</div>
-        <div class="ep-card-date">
-          <i class="far fa-calendar"></i> {{ ep.publish_date }}
-          {% if ep.edition %} &nbsp;·&nbsp; {{ ep.edition }}{% endif %}
-        </div>
-        <div class="ep-card-btn">
-          <button class="ep-btn ep-btn-read" onclick="event.stopPropagation();openViewer('{{ pdf_src }}','{{ ep.title }}','{{ ep.publish_date }}','{{ img_src }}')">
+      <div class="ep-body">
+        <div class="ep-title">{{ ep.title }}</div>
+        <div class="ep-date"><i class="far fa-calendar"></i> {{ ep.publish_date }}{% if ep.edition %} · {{ ep.edition }}{% endif %}</div>
+        <div class="ep-actions">
+          <button class="ep-btn ep-read" onclick="readEpaper('{{ ep.get_image_url }}','{{ ep.get_pdf_url }}','{{ ep.title }}','{{ ep.publish_date }}')">
             <i class="fas fa-book-open"></i> Read
           </button>
-          {% if ep.pdf_file or ep.pdf_url %}
-          <a href="{{ ep.pdf_file.url|default:ep.pdf_url }}" download class="ep-btn ep-btn-dl" onclick="event.stopPropagation()">
+          {% if ep.get_pdf_url %}
+          <a href="{{ ep.get_pdf_url }}" download class="ep-btn ep-dl">
             <i class="fas fa-download"></i> PDF
           </a>
           {% endif %}
         </div>
       </div>
     </div>
-    {% endwith %}
     {% endfor %}
   </div>
 
   {% else %}
   <div style="text-align:center;padding:60px 20px;color:var(--mid);">
     <div style="font-size:60px;margin-bottom:16px;">🗞</div>
-    <h3 style="font-size:20px;margin-bottom:8px;color:var(--ink);">No E-Papers yet</h3>
-    <p style="font-size:14px;margin-bottom:20px;">Upload today's newspaper from the admin panel.</p>
-    <a href="/admin/news/epaper/add/" style="display:inline-block;background:var(--red);color:#fff;padding:10px 24px;border-radius:5px;font-weight:700;font-size:14px;">+ Upload E-Paper</a>
+    <h3 style="font-size:18px;margin-bottom:8px;color:var(--ink);">No E-Papers yet</h3>
+    <p style="font-size:13px;margin-bottom:20px;">Upload today's newspaper from Admin Panel.</p>
+    <a href="/admin/news/epaper/add/" style="display:inline-block;background:var(--red);color:#fff;padding:10px 22px;border-radius:5px;font-weight:700;font-size:13px;">+ Upload E-Paper</a>
   </div>
   {% endif %}
 </div>
 
-<!-- Aaj Tak style Viewer Modal -->
+<!-- Viewer Modal -->
 <div class="ep-modal" id="epModal">
-  <div class="ep-modal-bar">
-    <div class="ep-modal-title" id="epModalTitle">E-Paper</div>
-    <div class="ep-zoom" id="epZoom" style="display:none;">
-      <button class="ep-zoom-btn" onclick="zoomOut()"><i class="fas fa-minus"></i></button>
-      <span style="color:#fff;font-size:12px;min-width:36px;text-align:center;" id="zoomLabel">100%</span>
-      <button class="ep-zoom-btn" onclick="zoomIn()"><i class="fas fa-plus"></i></button>
-    </div>
-    <div class="ep-modal-btns">
-      <a id="epDownloadBtn" href="#" download class="ep-modal-btn dl" style="display:none;text-decoration:none;"><i class="fas fa-download"></i> Download</a>
-      <button class="ep-modal-btn cl" onclick="closeViewer()"><i class="fas fa-times"></i> Close</button>
-    </div>
+  <div class="ep-bar">
+    <div class="ep-bar-title" id="epTitle">E-Paper</div>
+    <a id="epDlBtn" href="#" download class="ep-bar-btn ep-bar-dl" style="display:none;">
+      <i class="fas fa-download"></i> Download
+    </a>
+    <button class="ep-bar-btn ep-bar-cl" onclick="closeEpaper()">
+      <i class="fas fa-times"></i> Close
+    </button>
   </div>
-  <div class="ep-modal-body" id="epModalBody">
-    <!-- Content injected by JS -->
+  <div class="ep-content" id="epContent">
+    <div style="color:#fff;text-align:center;">
+      <div style="font-size:40px;margin-bottom:12px;">⏳</div>
+      <p>Loading...</p>
+    </div>
   </div>
 </div>
 
 <script>
-let currentZoom = 100;
-
-function openViewer(url, title, date, imgUrl) {
-  // url = pdf url (may be empty), imgUrl = image/thumbnail url
-  const thumb = imgUrl || '';
-  const hasPdf = url && url.trim() !== '';
-  const modal = document.getElementById('epModal');
-  const body  = document.getElementById('epModalBody');
-  const titleEl = document.getElementById('epModalTitle');
-  const dlBtn = document.getElementById('epDownloadBtn');
-  const zoom  = document.getElementById('epZoom');
+function readEpaper(imgUrl, pdfUrl, title, date) {
+  const modal   = document.getElementById('epModal');
+  const content = document.getElementById('epContent');
+  const titleEl = document.getElementById('epTitle');
+  const dlBtn   = document.getElementById('epDlBtn');
 
   titleEl.textContent = title + ' — ' + date;
-  body.innerHTML = '';
-  currentZoom = 100;
-  document.getElementById('zoomLabel').textContent = '100%';
-
-  // Determine best source to show
-  const imgUrl = thumb || url;
-  const isPDF  = url && url.toLowerCase().endsWith('.pdf');
-
-  if (isPDF && url) {
-    body.innerHTML = `<iframe class="ep-viewer" src="${url}" id="epIframe"></iframe>`;
-    zoom.style.display = 'none';
-    dlBtn.href = url; dlBtn.style.display = 'inline-flex';
-
-  } else if (imgUrl) {
-    body.innerHTML = `
-      <div style="overflow:auto;width:100%;height:100%;display:flex;align-items:flex-start;justify-content:center;">
-        <img id="epImg" src="${imgUrl}" alt="${title}"
-          style="max-width:100%;height:auto;border-radius:6px;cursor:zoom-in;transition:transform .2s;"
-          onerror="this.parentNode.innerHTML='<div style=text-align:center;color:#fff;padding:40px><div style=font-size:60px>📰</div><p style=opacity:.7>Image could not load</p></div>'">
-      </div>`;
-    zoom.style.display = 'flex';
-    if (url && url !== thumb) { dlBtn.href = url; dlBtn.style.display = 'inline-flex'; }
-    else dlBtn.style.display = 'none';
-
-  } else {
-    body.innerHTML = `<div style="text-align:center;color:#fff;padding:40px;"><div style="font-size:60px;margin-bottom:16px;">📰</div><p style="font-size:16px;opacity:.7">No content available.<br>Please upload a PDF or image from Admin Panel.</p></div>`;
-    zoom.style.display = 'none'; dlBtn.style.display = 'none';
-  }
-
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
+
+  const isPdf = pdfUrl && pdfUrl.toLowerCase().includes('.pdf');
+
+  if (isPdf) {
+    content.innerHTML = '<iframe src="' + pdfUrl + '" style="width:100%;height:100%;border:none;border-radius:6px;"></iframe>';
+    dlBtn.href = pdfUrl;
+    dlBtn.style.display = 'inline-flex';
+  } else if (imgUrl) {
+    content.innerHTML = '<img src="' + imgUrl + '" alt="' + title + '" style="max-width:90vw;max-height:85vh;object-fit:contain;border-radius:6px;box-shadow:0 4px 30px rgba(0,0,0,.5);">';
+    if (pdfUrl) { dlBtn.href = pdfUrl; dlBtn.style.display = 'inline-flex'; }
+    else dlBtn.style.display = 'none';
+  } else {
+    content.innerHTML = '<div style="color:#fff;text-align:center;padding:40px;"><div style="font-size:56px;margin-bottom:12px;">📰</div><p style="opacity:.6;font-size:14px;">No image or PDF available.<br>Please add Image URL in Admin Panel.</p><a href="/admin/news/epaper/" style="display:inline-block;margin-top:16px;background:#e60026;color:#fff;padding:8px 18px;border-radius:4px;font-size:13px;font-weight:700;">Go to Admin</a></div>';
+    dlBtn.style.display = 'none';
+  }
 }
 
-function closeViewer() {
+function closeEpaper() {
   document.getElementById('epModal').classList.remove('open');
-  document.getElementById('epModalBody').innerHTML = '';
+  document.getElementById('epContent').innerHTML = '';
   document.body.style.overflow = '';
 }
 
-function zoomIn() {
-  currentZoom = Math.min(currentZoom + 20, 200);
-  applyZoom();
-}
-function zoomOut() {
-  currentZoom = Math.max(currentZoom - 20, 50);
-  applyZoom();
-}
-function applyZoom() {
-  document.getElementById('zoomLabel').textContent = currentZoom + '%';
-  const img = document.getElementById('epImg');
-  if (img) { img.style.maxWidth = currentZoom + '%'; img.style.maxHeight = 'none'; }
-}
-
-// Close on Escape key
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeViewer(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeEpaper();
+});
 </script>
 {% endblock %}
