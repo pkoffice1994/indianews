@@ -48,7 +48,8 @@
 /* Image viewport */
 .ep-viewport{flex:1;overflow:auto;position:relative;background:#2a2a2a;cursor:grab;}
 .ep-viewport:active{cursor:grabbing;}
-.ep-viewport.pdf-mode{overflow:hidden;padding:0;}
+.ep-viewport.pdf-mode{overflow:hidden;padding:0;cursor:default;}
+.ep-viewport.pdf-mode .ep-img-wrap{padding:0;min-height:100%;height:100%;}
 .ep-img-wrap{display:flex;justify-content:center;align-items:flex-start;min-height:100%;padding:16px;}
 .ep-img-wrap img{border-radius:4px;box-shadow:0 4px 40px rgba(0,0,0,.6);transform-origin:top center;transition:none;display:block;}
 .ep-iframe{width:100%;height:100%;border:none;}
@@ -96,7 +97,7 @@
         <div class="ep-date"><i class="far fa-calendar"></i> {{ ep.publish_date }}{% if ep.edition %} · {{ ep.edition }}{% endif %}</div>
         <div class="ep-actions">
           <button class="ep-btn ep-read" onclick="openEpaper('{{ ep.get_image_url }}','{{ ep.get_pdf_url }}','{{ ep.title }}','{{ ep.publish_date }}')">
-            <i class="fas fa-book-open"></i> Read
+            <i class="fas fa-eye"></i> View
           </button>
           {% if ep.get_pdf_url %}
           <a href="{{ ep.get_pdf_url }}" download class="ep-btn ep-dl">
@@ -188,14 +189,18 @@ function openEpaper(imgUrl, pdfUrl, title, date) {
   document.body.style.overflow = 'hidden';
 
   if (isPdf) {
-    // PDF — use Google Docs viewer (works for all PDFs including Drive links)
     wrap.innerHTML = '';
     const vp = document.getElementById('epViewport');
     vp.classList.add('pdf-mode');
     wrap.style.padding = '0';
-    // Try Google Docs viewer first (works with public URLs)
-    const googleViewerUrl = 'https://docs.google.com/viewer?url=' + encodeURIComponent(pdfUrl) + '&embedded=true';
-    wrap.innerHTML = '<iframe class="ep-iframe" id="pdfFrame" src="' + googleViewerUrl + '" allowfullscreen></iframe>';
+    // Google Drive preview link works best - scroll page by page
+    let viewUrl = pdfUrl;
+    // Convert /view to /preview for Drive links
+    viewUrl = viewUrl.replace('/view?usp=share_link','./preview').replace('/view','./preview');
+    if (!viewUrl.includes('preview') && !viewUrl.includes('drive.google')) {
+      viewUrl = 'https://docs.google.com/viewer?url=' + encodeURIComponent(pdfUrl) + '&embedded=true';
+    }
+    wrap.innerHTML = '<iframe class="ep-iframe" id="pdfFrame" src="' + viewUrl + '" allowfullscreen allow="autoplay"></iframe>';
     dlBtn.href = pdfUrl; dlBtn.style.display = 'inline-flex';
     minimap.style.display = 'none';
     zoomBar.style.display = 'none';
