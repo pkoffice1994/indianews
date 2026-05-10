@@ -10,12 +10,11 @@
 .ep-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
 @media(max-width:700px){.ep-grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:400px){.ep-grid{grid-template-columns:1fr;}}
-
 .ep-card{background:var(--white);border:1px solid var(--border);border-radius:8px;overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;}
 .ep-card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.12);}
 .ep-thumb{height:200px;background:linear-gradient(135deg,#b5001e,#e60026);position:relative;overflow:hidden;}
 .ep-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
-.ep-thumb-placeholder{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,.8);}
+.ep-thumb-ph{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,.8);}
 .ep-today{position:absolute;top:8px;left:8px;background:var(--red);color:#fff;font-size:9px;font-weight:800;padding:2px 7px;border-radius:3px;letter-spacing:.06em;}
 .ep-body{padding:12px;}
 .ep-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px;}
@@ -25,25 +24,55 @@
 .ep-read{background:var(--red);color:#fff;}
 .ep-dl{background:#f0f0f0;color:#444;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:4px;}
 
-/* Viewer */
-.ep-modal{display:none;position:fixed;inset:0;z-index:2000;flex-direction:column;background:#111;}
+/* ── FULLSCREEN VIEWER ── */
+.ep-modal{display:none;position:fixed;inset:0;z-index:3000;flex-direction:column;background:#111;}
 .ep-modal.open{display:flex;}
-.ep-bar{background:#0a0a0a;padding:10px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.1);}
-.ep-bar-title{color:#fff;font-size:13px;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ep-bar-btn{padding:6px 14px;border-radius:4px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:var(--hf);}
-.ep-bar-dl{background:var(--red);color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:4px;}
-.ep-bar-cl{background:rgba(255,255,255,.1);color:#fff;}
-.ep-content{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:16px;background:#1a1a1a;}
-.ep-content img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;box-shadow:0 4px 30px rgba(0,0,0,.5);}
-.ep-content iframe{width:100%;height:100%;border:none;border-radius:6px;}
+
+/* Top bar */
+.ep-bar{background:#0d0d0d;padding:8px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0;border-bottom:2px solid var(--red);}
+.ep-bar-title{color:#fff;font-size:13px;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ep-bar-btn{padding:6px 12px;border-radius:4px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:var(--hf);display:inline-flex;align-items:center;gap:5px;}
+.ep-bar-btn.red{background:var(--red);color:#fff;}
+.ep-bar-btn.grey{background:rgba(255,255,255,.12);color:#fff;}
+.ep-bar-btn:hover{opacity:.85;}
+
+/* Zoom bar */
+.ep-zoom-bar{background:#1a1a1a;padding:6px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.08);}
+.ep-zoom-bar label{color:rgba(255,255,255,.5);font-size:11px;}
+.zb{width:28px;height:28px;border-radius:4px;background:rgba(255,255,255,.1);color:#fff;border:none;cursor:pointer;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.zb:hover{background:var(--red);}
+.zlabel{color:#fff;font-size:12px;font-weight:700;min-width:40px;text-align:center;}
+.zfit{padding:4px 10px;border-radius:4px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);border:none;cursor:pointer;font-size:11px;font-weight:600;}
+.zfit:hover{background:var(--red);color:#fff;}
+
+/* Image viewport */
+.ep-viewport{flex:1;overflow:auto;position:relative;background:#2a2a2a;cursor:grab;}
+.ep-viewport:active{cursor:grabbing;}
+.ep-viewport.pdf-mode{overflow:hidden;padding:0;}
+.ep-img-wrap{display:flex;justify-content:center;align-items:flex-start;min-height:100%;padding:16px;}
+.ep-img-wrap img{border-radius:4px;box-shadow:0 4px 40px rgba(0,0,0,.6);transform-origin:top center;transition:none;display:block;}
+.ep-iframe{width:100%;height:100%;border:none;}
+
+/* Minimap */
+.ep-minimap{position:absolute;bottom:12px;right:12px;width:90px;background:rgba(0,0,0,.6);border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,.15);display:none;}
+.ep-minimap img{width:100%;display:block;opacity:.8;}
+.ep-minimap-indicator{position:absolute;border:2px solid var(--red);pointer-events:none;transition:all .1s;}
+
+@media(max-width:600px){
+  .ep-grid{grid-template-columns:repeat(2,1fr);}
+  .ep-thumb{height:150px;}
+  .ep-zoom-bar{padding:5px 10px;gap:5px;}
+  .ep-bar{padding:7px 10px;gap:6px;}
+  .ep-bar-title{font-size:12px;}
+}
 </style>
 
 <div class="ep-wrap">
   <div class="ep-hero">
-    <div style="font-size:50px;flex-shrink:0;">🗞</div>
+    <div style="font-size:48px;flex-shrink:0;">🗞</div>
     <div>
       <h1>Digital E-Paper</h1>
-      <p>Read today's newspaper anytime, anywhere</p>
+      <p>Tap any edition to read — zoom, scroll, read line by line</p>
     </div>
   </div>
 
@@ -51,12 +80,11 @@
   <div class="ep-grid">
     {% for ep in epapers %}
     <div class="ep-card">
-      <div class="ep-thumb" onclick="readEpaper('{{ ep.get_image_url }}','{{ ep.get_pdf_url }}','{{ ep.title }}','{{ ep.publish_date }}')">
+      <div class="ep-thumb" onclick="openEpaper('{{ ep.get_image_url }}','{{ ep.get_pdf_url }}','{{ ep.title }}','{{ ep.publish_date }}')">
         {% if ep.get_image_url %}
-          <img src="{{ ep.get_image_url }}" alt="{{ ep.title }}"
-               onerror="this.style.display='none';">
+          <img src="{{ ep.get_image_url }}" alt="{{ ep.title }}" onerror="this.style.display='none'">
         {% else %}
-          <div class="ep-thumb-placeholder">
+          <div class="ep-thumb-ph">
             <div style="font-size:44px;margin-bottom:8px;">📰</div>
             <div style="font-size:12px;font-weight:600;text-align:center;padding:0 12px;">{{ ep.title }}</div>
           </div>
@@ -67,7 +95,7 @@
         <div class="ep-title">{{ ep.title }}</div>
         <div class="ep-date"><i class="far fa-calendar"></i> {{ ep.publish_date }}{% if ep.edition %} · {{ ep.edition }}{% endif %}</div>
         <div class="ep-actions">
-          <button class="ep-btn ep-read" onclick="readEpaper('{{ ep.get_image_url }}','{{ ep.get_pdf_url }}','{{ ep.title }}','{{ ep.publish_date }}')">
+          <button class="ep-btn ep-read" onclick="openEpaper('{{ ep.get_image_url }}','{{ ep.get_pdf_url }}','{{ ep.title }}','{{ ep.publish_date }}')">
             <i class="fas fa-book-open"></i> Read
           </button>
           {% if ep.get_pdf_url %}
@@ -80,71 +108,236 @@
     </div>
     {% endfor %}
   </div>
-
   {% else %}
   <div style="text-align:center;padding:60px 20px;color:var(--mid);">
     <div style="font-size:60px;margin-bottom:16px;">🗞</div>
     <h3 style="font-size:18px;margin-bottom:8px;color:var(--ink);">No E-Papers yet</h3>
-    <p style="font-size:13px;margin-bottom:20px;">Upload today's newspaper from Admin Panel.</p>
-    <a href="/admin/news/epaper/add/" style="display:inline-block;background:var(--red);color:#fff;padding:10px 22px;border-radius:5px;font-weight:700;font-size:13px;">+ Upload E-Paper</a>
+    <p style="margin-bottom:20px;font-size:13px;">Add newspaper image URL from Admin Panel.</p>
+    <a href="/admin/news/epaper/add/" style="background:var(--red);color:#fff;padding:10px 22px;border-radius:5px;font-weight:700;font-size:13px;">+ Add E-Paper</a>
   </div>
   {% endif %}
 </div>
 
-<!-- Viewer Modal -->
+<!-- ── FULLSCREEN VIEWER MODAL ── -->
 <div class="ep-modal" id="epModal">
+
+  <!-- Top bar -->
   <div class="ep-bar">
-    <div class="ep-bar-title" id="epTitle">E-Paper</div>
-    <a id="epDlBtn" href="#" download class="ep-bar-btn ep-bar-dl" style="display:none;">
-      <i class="fas fa-download"></i> Download
+    <div class="ep-bar-title" id="epBarTitle">E-Paper</div>
+    <a id="epDlBtn" href="#" download class="ep-bar-btn red" style="display:none;">
+      <i class="fas fa-download"></i> <span class="hide-xs">Download</span>
     </a>
-    <button class="ep-bar-btn ep-bar-cl" onclick="closeEpaper()">
-      <i class="fas fa-times"></i> Close
+    <button class="ep-bar-btn grey" onclick="closeEpaper()">
+      <i class="fas fa-times"></i> <span class="hide-xs">Close</span>
     </button>
   </div>
-  <div class="ep-content" id="epContent">
-    <div style="color:#fff;text-align:center;">
-      <div style="font-size:40px;margin-bottom:12px;">⏳</div>
-      <p>Loading...</p>
+
+  <!-- Zoom controls -->
+  <div class="ep-zoom-bar" id="epZoomBar">
+    <label>Zoom:</label>
+    <button class="zb" onclick="zoom(-25)" title="Zoom Out"><i class="fas fa-minus"></i></button>
+    <span class="zlabel" id="zoomLbl">100%</span>
+    <button class="zb" onclick="zoom(25)" title="Zoom In"><i class="fas fa-plus"></i></button>
+    <button class="zfit" onclick="fitWidth()" title="Fit to width">Fit Width</button>
+    <button class="zfit" onclick="fitFull()" title="Full size">100%</button>
+    <button class="zfit" onclick="zoom(50)" title="Zoom 150%">150%</button>
+    <button class="zfit" onclick="setZoom(200)" title="Zoom 200%">200%</button>
+    <div style="margin-left:auto;font-size:11px;color:rgba(255,255,255,.35);">
+      <i class="fas fa-mouse-pointer"></i> Scroll or pinch to zoom
     </div>
   </div>
+
+  <!-- Image viewport -->
+  <div class="ep-viewport" id="epViewport">
+    <div class="ep-img-wrap" id="epImgWrap">
+      <!-- content injected by JS -->
+    </div>
+  </div>
+
+  <!-- Minimap -->
+  <div class="ep-minimap" id="epMinimap">
+    <img id="epMinimapImg" src="" alt="">
+    <div class="ep-minimap-indicator" id="epMinimapInd"></div>
+  </div>
+
 </div>
 
 <script>
-function readEpaper(imgUrl, pdfUrl, title, date) {
-  const modal   = document.getElementById('epModal');
-  const content = document.getElementById('epContent');
-  const titleEl = document.getElementById('epTitle');
-  const dlBtn   = document.getElementById('epDlBtn');
+let curZoom = 100;
+let curImg  = '';
+let isPdf   = false;
+let isDragging = false;
+let dragStart  = {x:0, y:0, sl:0, st:0};
+
+function openEpaper(imgUrl, pdfUrl, title, date) {
+  const modal    = document.getElementById('epModal');
+  const wrap     = document.getElementById('epImgWrap');
+  const titleEl  = document.getElementById('epBarTitle');
+  const dlBtn    = document.getElementById('epDlBtn');
+  const minimap  = document.getElementById('epMinimap');
+  const mmImg    = document.getElementById('epMinimapImg');
+  const zoomBar  = document.getElementById('epZoomBar');
+
+  curImg = imgUrl || '';
+  isPdf  = pdfUrl && pdfUrl.toLowerCase().includes('.pdf');
+  curZoom = 100;
+  document.getElementById('zoomLbl').textContent = '100%';
 
   titleEl.textContent = title + ' — ' + date;
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
 
-  const isPdf = pdfUrl && pdfUrl.toLowerCase().includes('.pdf');
-
   if (isPdf) {
-    content.innerHTML = '<iframe src="' + pdfUrl + '" style="width:100%;height:100%;border:none;border-radius:6px;"></iframe>';
-    dlBtn.href = pdfUrl;
-    dlBtn.style.display = 'inline-flex';
+    // PDF — use iframe
+    wrap.innerHTML = '';
+    const vp = document.getElementById('epViewport');
+    vp.classList.add('pdf-mode');
+    wrap.style.padding = '0';
+    wrap.innerHTML = '<iframe class="ep-iframe" src="' + pdfUrl + '"></iframe>';
+    vp.style.display = 'block';
+    dlBtn.href = pdfUrl; dlBtn.style.display = 'inline-flex';
+    minimap.style.display = 'none';
+    zoomBar.style.display = 'none';
+
   } else if (imgUrl) {
-    content.innerHTML = '<img src="' + imgUrl + '" alt="' + title + '" style="max-width:90vw;max-height:85vh;object-fit:contain;border-radius:6px;box-shadow:0 4px 30px rgba(0,0,0,.5);">';
-    if (pdfUrl) { dlBtn.href = pdfUrl; dlBtn.style.display = 'inline-flex'; }
-    else dlBtn.style.display = 'none';
-  } else {
-    content.innerHTML = '<div style="color:#fff;text-align:center;padding:40px;"><div style="font-size:56px;margin-bottom:12px;">📰</div><p style="opacity:.6;font-size:14px;">No image or PDF available.<br>Please add Image URL in Admin Panel.</p><a href="/admin/news/epaper/" style="display:inline-block;margin-top:16px;background:#e60026;color:#fff;padding:8px 18px;border-radius:4px;font-size:13px;font-weight:700;">Go to Admin</a></div>';
+    // Image — full newspaper view
+    document.getElementById('epViewport').classList.remove('pdf-mode');
+    wrap.style.padding = '16px';
+    wrap.innerHTML = '<img id="epMainImg" src="' + imgUrl + '" alt="' + title + '" style="width:100%;max-width:900px;">';
     dlBtn.style.display = 'none';
+    zoomBar.style.display = 'flex';
+
+    // Minimap
+    mmImg.src = imgUrl;
+    minimap.style.display = 'block';
+
+    // After image loads — apply fit width
+    const img = document.getElementById('epMainImg');
+    img.onload = function() { fitWidth(); updateMinimap(); };
+    img.onerror = function() {
+      wrap.innerHTML = '<div style="color:#fff;text-align:center;padding:60px 20px;"><div style="font-size:60px;margin-bottom:12px;">⚠️</div><p style="opacity:.6;">Image could not load.<br>Check the URL in Admin Panel.</p></div>';
+      minimap.style.display = 'none';
+    };
+
+    // Drag to scroll
+    setupDrag();
+
+    // Pinch to zoom (mobile)
+    setupPinch();
+
+  } else {
+    wrap.innerHTML = '<div style="color:#fff;text-align:center;padding:60px 20px;"><div style="font-size:60px;margin-bottom:12px;">📰</div><p style="opacity:.6;font-size:14px;">No image available.<br>Add Image URL in Admin → E-Paper.</p><a href="/admin/news/epaper/" style="display:inline-block;margin-top:14px;background:#e60026;color:#fff;padding:8px 18px;border-radius:4px;font-size:13px;font-weight:700;">Open Admin</a></div>';
+    dlBtn.style.display = 'none';
+    minimap.style.display = 'none';
+    zoomBar.style.display = 'none';
   }
 }
 
 function closeEpaper() {
   document.getElementById('epModal').classList.remove('open');
-  document.getElementById('epContent').innerHTML = '';
+  document.getElementById('epImgWrap').innerHTML = '';
+  document.getElementById('epViewport').classList.remove('pdf-mode');
   document.body.style.overflow = '';
 }
 
+function zoom(delta) { setZoom(curZoom + delta); }
+
+function setZoom(val) {
+  curZoom = Math.max(30, Math.min(400, val));
+  document.getElementById('zoomLbl').textContent = curZoom + '%';
+  const img = document.getElementById('epMainImg');
+  if (img) {
+    img.style.width = curZoom + '%';
+    img.style.maxWidth = 'none';
+    setTimeout(updateMinimap, 100);
+  }
+}
+
+function fitWidth() {
+  const vp  = document.getElementById('epViewport');
+  const img = document.getElementById('epMainImg');
+  if (!img) return;
+  const vpW = vp.clientWidth - 32; // padding
+  const imgNatW = img.naturalWidth || 900;
+  const pct = Math.round((vpW / imgNatW) * 100);
+  setZoom(pct);
+}
+
+function fitFull() { setZoom(100); }
+
+function updateMinimap() {
+  const vp  = document.getElementById('epViewport');
+  const ind = document.getElementById('epMinimapInd');
+  const mm  = document.getElementById('epMinimap');
+  if (!mm || mm.style.display === 'none') return;
+  const mmH = mm.clientHeight;
+  const mmW = mm.clientWidth;
+  const scrollRatioY = vp.scrollTop / (vp.scrollHeight || 1);
+  const scrollRatioX = vp.scrollLeft / (vp.scrollWidth || 1);
+  const visH = (vp.clientHeight / vp.scrollHeight) * mmH;
+  const visW = (vp.clientWidth  / vp.scrollWidth)  * mmW;
+  ind.style.top    = (scrollRatioY * mmH) + 'px';
+  ind.style.left   = (scrollRatioX * mmW) + 'px';
+  ind.style.height = Math.min(visH, mmH) + 'px';
+  ind.style.width  = Math.min(visW, mmW) + 'px';
+}
+
+function setupDrag() {
+  const vp = document.getElementById('epViewport');
+  vp.onmousedown = e => {
+    isDragging = true;
+    dragStart = {x: e.clientX, y: e.clientY, sl: vp.scrollLeft, st: vp.scrollTop};
+    vp.style.cursor = 'grabbing';
+    e.preventDefault();
+  };
+  window.onmousemove = e => {
+    if (!isDragging) return;
+    vp.scrollLeft = dragStart.sl - (e.clientX - dragStart.x);
+    vp.scrollTop  = dragStart.st - (e.clientY - dragStart.y);
+    updateMinimap();
+  };
+  window.onmouseup = () => {
+    isDragging = false;
+    if (document.getElementById('epViewport'))
+      document.getElementById('epViewport').style.cursor = 'grab';
+  };
+  vp.onscroll = updateMinimap;
+}
+
+let pinchDist = 0;
+function setupPinch() {
+  const vp = document.getElementById('epViewport');
+  vp.ontouchstart = e => {
+    if (e.touches.length === 2) {
+      pinchDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+    }
+  };
+  vp.ontouchmove = e => {
+    if (e.touches.length === 2) {
+      const d = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      if (pinchDist > 0) {
+        const delta = (d - pinchDist) * 0.5;
+        setZoom(curZoom + delta);
+        pinchDist = d;
+      }
+      e.preventDefault();
+    }
+  };
+}
+
+// Keyboard shortcuts
 document.addEventListener('keydown', e => {
+  if (!document.getElementById('epModal').classList.contains('open')) return;
   if (e.key === 'Escape') closeEpaper();
+  if (e.key === '+' || e.key === '=') zoom(25);
+  if (e.key === '-') zoom(-25);
+  if (e.key === '0') fitWidth();
 });
 </script>
 {% endblock %}
