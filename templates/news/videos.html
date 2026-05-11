@@ -1,26 +1,113 @@
 {% extends "base.html" %}
-{% block title %}Video News | India News{% endblock %}
+{% block title %}Short Videos | India News{% endblock %}
 {% block content %}
 <div class="container page-wrap">
-  <div class="sec-head"><h2>📹 Video News</h2></div>
-  <div class="g3">
-    {% for n in videos %}
-    <a href="/{{ n.slug }}/" class="ncard">
-      <div style="position:relative">
-        <img src="{{ n.get_image }}" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80'" alt="" style="height:200px;width:100%;object-fit:cover">
-        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.65);border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center">
-          <i class="fas fa-play" style="color:#fff;font-size:16px;margin-left:4px"></i>
+
+<style>
+.sv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+@media(max-width:900px){.sv-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:600px){.sv-grid{grid-template-columns:repeat(2,1fr);}}
+
+.sv-card{background:var(--white);border:1px solid var(--border);border-radius:8px;overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;}
+.sv-card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.12);}
+.sv-thumb{position:relative;height:0;padding-bottom:177%;overflow:hidden;background:#111;}
+.sv-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.sv-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.3);}
+.sv-play-btn{width:50px;height:50px;background:#FF0000;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,.4);}
+.sv-badge{position:absolute;top:6px;left:6px;background:#FF0000;color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:3px;}
+.sv-body{padding:10px;}
+.sv-title{font-size:13px;font-weight:700;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--ink);}
+</style>
+
+<div class="sec-head"><h2>⚡ Short Videos</h2></div>
+
+{% if shorts %}
+<div class="sv-grid">
+  {% for s in shorts %}
+  <div class="sv-card">
+    {% if s.is_youtube %}
+    <a href="{{s.video_url}}" target="_blank">
+    {% else %}
+    <div onclick="playVideo('{{s.get_video_src}}','{{s.get_thumbnail}}','{{s.title}}')">
+    {% endif %}
+      <div class="sv-thumb">
+        <img src="{{s.get_thumbnail}}" alt="{{s.title}}"
+             onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&q=80'">
+        <div class="sv-play">
+          <div class="sv-play-btn">
+            <i class="fas fa-play" style="color:#fff;font-size:18px;margin-left:3px"></i>
+          </div>
         </div>
+        {% if s.is_youtube %}<div class="sv-badge">▶ YouTube</div>{% endif %}
       </div>
-      <div class="ncard-body">
-        <div class="cat-tag">{{ n.category.name_en|default:n.category.name }}</div>
-        <div class="ntitle">{{ n.title_hi }}</div>
-        <div class="nmeta"><i class="far fa-clock"></i> {{ n.published_at|timesince }} ago</div>
+      <div class="sv-body">
+        <div class="sv-title">{{s.title}}</div>
       </div>
-    </a>
-    {% empty %}
-    <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--mid)">No video news yet.</div>
-    {% endfor %}
+    {% if s.is_youtube %}</a>{% else %}</div>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<!-- No short news - show regular video news -->
+<div class="sec-head" style="margin-top:20px"><h2>📹 Video News</h2></div>
+<div class="g3">
+  {% for n in videos %}
+  <a href="/{{ n.slug }}/" class="ncard">
+    <div style="position:relative">
+      <img src="{{ n.get_image }}" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80'" alt="" style="height:200px;width:100%;object-fit:cover">
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.65);border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center">
+        <i class="fas fa-play" style="color:#fff;font-size:16px;margin-left:4px"></i>
+      </div>
+    </div>
+    <div class="ncard-body">
+      {% if n.category %}<div class="cat-tag">{{ n.category.name_en|default:n.category.name }}</div>{% endif %}
+      <div class="ntitle">{{ n.title_hi }}</div>
+      <div class="nmeta"><i class="far fa-clock"></i> {{ n.published_at|timesince }} ago</div>
+    </div>
+  </a>
+  {% empty %}
+  <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--mid)">
+    <div style="font-size:48px;margin-bottom:12px">🎬</div>
+    <h3 style="margin-bottom:8px">No videos yet</h3>
+    <p style="font-size:13px;margin-bottom:16px">Add Short News with YouTube URL from Admin Panel</p>
+    <a href="/admin/news/shortnews/add/" style="background:var(--red);color:#fff;padding:10px 20px;border-radius:5px;font-weight:700;font-size:13px;">+ Add Short Video</a>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+</div>
+
+<!-- MP4 Video Player Modal -->
+<div id="vidModal" style="display:none;position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.9);flex-direction:column;align-items:center;justify-content:center;">
+  <div style="position:relative;width:100%;max-width:400px;background:#000;border-radius:10px;overflow:hidden;">
+    <div style="padding:10px 14px;background:#111;display:flex;align-items:center;justify-content:space-between;">
+      <span id="vidTitle" style="color:#fff;font-size:13px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+      <button onclick="closeVideo()" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;margin-left:10px;">✕</button>
+    </div>
+    <video id="vidPlayer" controls autoplay style="width:100%;max-height:70vh;background:#000;display:block;">
+      <source id="vidSrc" src="" type="video/mp4">
+    </video>
   </div>
 </div>
+
+<script>
+function playVideo(src, thumb, title) {
+  if (!src) return;
+  document.getElementById('vidSrc').src = src;
+  document.getElementById('vidTitle').textContent = title;
+  document.getElementById('vidPlayer').load();
+  document.getElementById('vidPlayer').play();
+  const modal = document.getElementById('vidModal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeVideo() {
+  document.getElementById('vidPlayer').pause();
+  document.getElementById('vidModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeVideo(); });
+</script>
 {% endblock %}

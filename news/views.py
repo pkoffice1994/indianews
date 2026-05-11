@@ -122,10 +122,12 @@ def epaper_view(request):
 
 
 def videos_view(request):
-    qs = News.objects.filter(status='published', is_video_news=True).order_by('-published_at')
-    paged = Paginator(qs, 12).get_page(request.GET.get('page'))
+    from .models import ShortNews
+    shorts = ShortNews.objects.filter(is_active=True, news_type='video').order_by('-created_at')
+    videos = News.objects.filter(status='published', is_video_news=True).order_by('-published_at')[:12]
     return render(request, 'news/videos.html', {
-        'page_obj': paged,
+        'shorts': shorts,
+        'videos': videos,
         'site': SystemSetting.get_settings(),
         'ads': get_ads_context(),
     })
