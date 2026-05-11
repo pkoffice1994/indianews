@@ -270,6 +270,17 @@ footer{background:#0a0a1a;color:rgba(255,255,255,.65);margin-top:40px;}
 }
 </style>
 {% if site.header_scripts %}{{ site.header_scripts|safe }}{% endif %}
+<script>
+// Apply language IMMEDIATELY before DOM renders to prevent flash
+(function(){
+  var lang = localStorage.getItem('in_lang') || 'hi';
+  if(lang === 'en') {
+    document.write('<style>.lang-hi{display:none!important}.lang-en{display:block!important}</style>');
+  } else {
+    document.write('<style>.lang-en{display:none!important}.lang-hi{display:block!important}</style>');
+  }
+})();
+</script>
 </head>
 <body>
 
@@ -286,8 +297,8 @@ footer{background:#0a0a1a;color:rgba(255,255,255,.65);margin-top:40px;}
     <div class="topbar-r">
       <!-- Language Toggle in topbar -->
       <div style="display:flex;background:rgba(255,255,255,.1);border-radius:20px;overflow:hidden;flex-shrink:0;">
-        <button id="topBtnHI" onclick="setLang('hi')" style="padding:3px 10px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:var(--hf);background:var(--red);color:#fff;border-radius:20px;transition:all .2s;">हिंदी</button>
-        <button id="topBtnEN" onclick="setLang('en')" style="padding:3px 10px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:var(--hf);background:transparent;color:rgba(255,255,255,.7);border-radius:20px;transition:all .2s;">EN</button>
+        <button id="topBtnHI" onclick="event.preventDefault();event.stopPropagation();setLang('hi')" type="button" style="padding:3px 10px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:var(--hf);background:var(--red);color:#fff;border-radius:20px;transition:all .2s;">हिंदी</button>
+        <button id="topBtnEN" onclick="event.preventDefault();event.stopPropagation();setLang('en')" type="button" style="padding:3px 10px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:var(--hf);background:transparent;color:rgba(255,255,255,.7);border-radius:20px;transition:all .2s;">EN</button>
       </div>
       {% if site.enable_dark_mode %}
       <div class="dark-tog" onclick="toggleDark()">
