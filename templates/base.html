@@ -351,7 +351,7 @@ footer{background:#0a0a1a;color:rgba(255,255,255,.65);margin-top:40px;}
 <nav class="main-nav">
   <div class="nav-in">
     <a href="/" class="nav-a {% if request.path == '/' %}active{% endif %}"><i class="fas fa-home"></i> Home</a>
-    <a href="/videos/" class="nav-a vid {% if request.path == '/videos/' %}active{% endif %}"><i class="fas fa-circle" style="font-size:7px;color:#ff4d4d"></i> VIDEOS</a>
+    <a href="/videos/" class="nav-a vid {% if request.path == '/videos/' %}active{% endif %}"><i class="fas fa-play-circle" style="font-size:13px;color:#ff4d4d"></i> SHORT NEWS</a>
     <a href="/epaper/" class="nav-a {% if request.path == '/epaper/' %}active{% endif %}"><i class="fas fa-newspaper"></i> E-PAPER</a>
     {% for cat in nav_categories|slice:":8" %}
     <a href="/category/{{ cat.slug }}/" class="nav-a {% if '/category/'|add:cat.slug|add:'/' in request.path %}active{% endif %}">

@@ -198,13 +198,17 @@ class ShortNews(models.Model):
 
     @property
     def get_thumbnail(self):
-        if self.image:
-            return self.image.url
+        if self.image and self.image.name:
+            try:
+                return self.image.url
+            except Exception:
+                pass
         if self.image_url:
             return self.image_url
-        if self.is_youtube and self.youtube_embed:
+        # Auto-fetch YouTube thumbnail from video_url
+        if self.video_url and ('youtube.com' in self.video_url or 'youtu.be' in self.video_url):
             import re
-            m = re.search(r'embed/([A-Za-z0-9_-]{11})', self.youtube_embed)
+            m = re.search(r'(?:v=|youtu\.be/|shorts/)([A-Za-z0-9_-]{11})', self.video_url)
             if m:
                 return f"https://img.youtube.com/vi/{m.group(1)}/hqdefault.jpg"
         return ''
