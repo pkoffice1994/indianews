@@ -46,6 +46,34 @@
 .vid-title{position:absolute;bottom:0;left:0;right:0;padding:6px 8px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);font-size:11px;font-weight:600;line-height:1.3;}
 .mob-shorts{display:none;}
 
+/* Professional News List */
+.news-pro-list{display:flex;flex-direction:column;gap:0;}
+.np-card{display:grid;grid-template-columns:200px 1fr;background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px;color:var(--ink);transition:box-shadow .2s,transform .2s;text-decoration:none;}
+.np-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.1);transform:translateY(-2px);}
+.np-img-wrap{position:relative;overflow:hidden;height:140px;}
+.np-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .3s;}
+.np-card:hover .np-img-wrap img{transform:scale(1.05);}
+.np-live{position:absolute;top:8px;left:8px;background:#e60026;color:#fff;font-size:9px;font-weight:800;padding:2px 7px;border-radius:3px;animation:blink 1.5s infinite;}
+.np-time-badge{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.65);color:#fff;font-size:10px;padding:2px 6px;border-radius:3px;}
+.np-body{padding:14px 16px;display:flex;flex-direction:column;justify-content:space-between;gap:8px;}
+.np-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.np-cat{color:#fff;font-size:10px;font-weight:800;padding:2px 8px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em;}
+.np-ago{font-size:11px;color:var(--mid);}
+.np-title{font-size:16px;font-weight:700;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.np-summary{font-size:12px;color:var(--mid);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.np-footer{display:flex;align-items:center;justify-content:space-between;margin-top:4px;}
+.np-author{font-size:11px;color:var(--mid);}
+.np-read{font-size:12px;color:var(--red);font-weight:700;}
+
+@media(max-width:640px){
+  .np-card{grid-template-columns:110px 1fr;}
+  .np-img-wrap{height:110px;}
+  .np-body{padding:10px 12px;}
+  .np-title{font-size:14px;}
+  .np-summary{display:none;}
+  .np-author{display:none;}
+}
+
 /* Desktop sidebar */
 @media(min-width:641px){
   .main-grid{display:grid;grid-template-columns:1fr 300px;gap:20px;}
@@ -153,18 +181,28 @@
 
     <!-- Latest news -->
     <div class="at-sec"><h2>📰 Latest News</h2><a href="/search/">View All →</a></div>
-    <div>
+    <div class="news-pro-list">
       {% for n in latest %}
-      <a href="/{{n.slug}}/" class="at-card" data-cat="{{n.category.slug|default:''}}">
-        <img class="at-card-img" src="{{n.get_image}}" alt="" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=300&q=80'">
-        <div class="at-card-body">
-          <div class="at-card-cat">
-            {% if n.is_breaking %}<span class="at-brk">LIVE</span>{% endif %}
-            {% if n.category %}{{n.category.name_en|default:n.category.name}}{% endif %}
+      <a href="/{{n.slug}}/" class="np-card" data-cat="{{n.category.slug|default:''}}">
+        <div class="np-img-wrap">
+          <img src="{{n.get_image}}" alt=""
+               onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=300&q=80'">
+          {% if n.is_breaking %}<span class="np-live">🔴 LIVE</span>{% endif %}
+          {% if n.read_time %}<span class="np-time-badge">📖 {{n.read_time}} min</span>{% endif %}
+        </div>
+        <div class="np-body">
+          <div class="np-top">
+            {% if n.category %}<span class="np-cat" style="background:{{n.category.color|default:'#e60026'}}">{{n.category.name_en|default:n.category.name}}</span>{% endif %}
+            <span class="np-ago"><i class="far fa-clock"></i> {{n.published_at|timesince}}</span>
           </div>
-          <div class="at-card-title lang-hi">{{n.title_hi}}</div>
-          {% if n.title_en %}<div class="at-card-title lang-en" style="display:none">{{n.title_en}}</div>{% endif %}
-          <div class="at-card-meta"><i class="far fa-clock"></i> {{n.published_at|timesince}} ago &nbsp;•&nbsp; 📖 {{n.read_time}} min</div>
+          <div class="np-title lang-hi">{{n.title_hi}}</div>
+          {% if n.title_en %}<div class="np-title lang-en" style="display:none">{{n.title_en}}</div>{% endif %}
+          {% if n.summary_hi %}<div class="np-summary lang-hi">{{n.summary_hi|truncatechars:100}}</div>{% endif %}
+          {% if n.summary_en %}<div class="np-summary lang-en" style="display:none">{{n.summary_en|truncatechars:100}}</div>{% endif %}
+          <div class="np-footer">
+            <span class="np-author"><i class="fas fa-user-edit"></i> {{n.author.get_full_name|default:"India News"}}</span>
+            <span class="np-read">Read More →</span>
+          </div>
         </div>
       </a>
       {% empty %}
