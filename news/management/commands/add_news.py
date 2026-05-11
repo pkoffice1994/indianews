@@ -284,7 +284,7 @@ Students not satisfied with their results can apply for re-checking between May 
 ]
 
 SHORT_NEWS = [
-    {"title": "पेट्रोल-डीजल के दाम: दिल्ली में पेट्रोल ₹94.77, डीजल ₹87.67 प्रति लीटर", "title_en": "Petrol-Diesel Prices: Delhi petrol ₹94.77, diesel ₹87.67 per litre"},
+    {"title": "पेट्रोल-डीजल के दाम: दिल्ली में पेट्रोल ₹94.77, डीजल ₹87.67 प्रति लीटर", "title_en": "Petrol-Diesel Prices: Delhi petrol ₹94.77, diesel ₹87.67 per litre", "video_url": "https://www.youtube.com/shorts/pA4SbsCP1Yg", "news_type": "video"},
     {"title": "सोने की कीमत: 10 ग्राम सोना ₹74,520, चांदी ₹89,400 प्रति किलो", "title_en": "Gold Price: 10g gold ₹74,520, silver ₹89,400 per kg"},
     {"title": "दिल्ली का मौसम: अधिकतम 38°C, न्यूनतम 24°C, आंशिक बादल", "title_en": "Delhi Weather: Max 38°C, Min 24°C, Partly Cloudy"},
     {"title": "डॉलर-रुपया: 1 डॉलर = ₹83.45, रुपया 10 पैसे मज़बूत हुआ", "title_en": "Dollar-Rupee: 1 USD = ₹83.45, Rupee strengthens by 10 paise"},
@@ -365,8 +365,17 @@ class Command(BaseCommand):
                 ShortNews.objects.create(
                     title=sn['title'],
                     content=sn.get('title_en', ''),
+                    video_url=sn.get('video_url', ''),
+                    news_type=sn.get('news_type', 'text'),
                     is_active=True,
                 )
+            else:
+                # Update video_url if provided
+                if sn.get('video_url'):
+                    ShortNews.objects.filter(title=sn['title']).update(
+                        video_url=sn['video_url'],
+                        news_type=sn.get('news_type', 'video'),
+                    )
 
         # Add E-Paper with PDF URL
         import datetime

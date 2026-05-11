@@ -182,18 +182,19 @@ class ShortNews(models.Model):
         return self.video_url
 
     @property
-    def is_youtube(self):
-        url = self.video_url or ''
-        return 'youtube.com' in url or 'youtu.be' in url
-
-    @property
     def youtube_embed(self):
         import re
         url = self.video_url or ''
-        m = re.search(r'(?:v=|youtu\.be/)([A-Za-z0-9_-]{11})', url)
+        # Match regular youtube, youtu.be, AND youtube shorts
+        m = re.search(r'(?:v=|youtu\.be/|shorts/)([A-Za-z0-9_-]{11})', url)
         if m:
-            return f"https://www.youtube.com/embed/{m.group(1)}?autoplay=1&mute=1"
+            return f"https://www.youtube.com/embed/{m.group(1)}?autoplay=1&mute=1&playsinline=1"
         return ''
+
+    @property
+    def is_youtube(self):
+        url = self.video_url or ''
+        return 'youtube.com' in url or 'youtu.be' in url
 
     @property
     def get_thumbnail(self):
