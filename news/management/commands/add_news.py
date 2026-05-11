@@ -371,22 +371,43 @@ class Command(BaseCommand):
         # Add E-Paper with PDF URL
         import datetime
         from news.models import EPaper
-        ep, ep_created = EPaper.objects.get_or_create(
-            publish_date=datetime.date.today(),
-            defaults={
-                'title': f"India News — {datetime.date.today().strftime('%d %B %Y')}",
-                'edition': 'Digital Edition',
-                'pdf_url': 'https://drive.google.com/file/d/1a9_pRRx5Vrg3FP3Th-b3f65ImOG-cPpD/preview',
-                'image_url': 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80',
-                'is_active': True,
-            }
-        )
-        if not ep_created:
-            # Always update PDF url
+        try:
+            ep, ep_created = EPaper.objects.get_or_create(
+                publish_date=datetime.date.today(),
+                defaults={
+                    'title': f"India News — {datetime.date.today().strftime('%d %B %Y')}",
+                    'edition': 'Digital Edition',
+                    'pdf_url': 'https://drive.google.com/file/d/1a9_pRRx5Vrg3FP3Th-b3f65ImOG-cPpD/preview',
+                    'image_url': 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80',
+                    'is_active': True,
+                }
+            )
+            # Always update PDF URL
             EPaper.objects.filter(pk=ep.pk).update(
                 pdf_url='https://drive.google.com/file/d/1a9_pRRx5Vrg3FP3Th-b3f65ImOG-cPpD/preview',
+                image_url='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80',
             )
-        self.stdout.write(f'  📰 E-Paper: {ep.title}')
+            self.stdout.write(f'  📰 E-Paper: {ep.title}')
+        except Exception as e:
+            self.stdout.write(f'  ⚠️ EPaper error: {e}')
+            # Try raw SQL as fallback
+            from django.db import connection
+            with connection.cursor() as cursor:
+                try:
+                    cursor.execute("""
+                        INSERT OR REPLACE INTO news_epaper 
+                        (title, edition, pdf_file, pdf_url, image_url, publish_date, is_active, created_at)
+                        VALUES (?, ?, '', ?, ?, ?, 1, datetime('now'))
+                    """, [
+                        f"India News — {datetime.date.today().strftime('%d %B %Y')}",
+                        'Digital Edition',
+                        'https://drive.google.com/file/d/1a9_pRRx5Vrg3FP3Th-b3f65ImOG-cPpD/preview',
+                        'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80',
+                        datetime.date.today().isoformat(),
+                    ])
+                    self.stdout.write('  📰 E-Paper added via SQL fallback')
+                except Exception as e2:
+                    self.stdout.write(f'  ❌ EPaper SQL fallback failed: {e2}')
 
         self.stdout.write(self.style.SUCCESS(
             f'\n🎉 Done! {created} news articles added successfully!'
