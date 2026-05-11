@@ -268,11 +268,18 @@
         <div style="margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:10px">
           {% if s.has_video %}
             {% if s.is_youtube %}
-            <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:5px;margin-bottom:6px">
-              <iframe src="{{s.youtube_embed}}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;border-radius:5px" allow="autoplay;encrypted-media" allowfullscreen loading="lazy"></iframe>
-            </div>
+            <a href="{{s.video_url}}" target="_blank" style="display:block;position:relative;border-radius:6px;overflow:hidden;margin-bottom:6px;">
+              <img src="{{s.get_thumbnail}}" style="width:100%;height:120px;object-fit:cover;display:block;"
+                   onerror="this.src='https://i.ytimg.com/vi/pA4SbsCP1Yg/hqdefault.jpg'">
+              <div style="position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;">
+                <div style="width:48px;height:48px;background:#FF0000;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,.4)">
+                  <i class="fas fa-play" style="color:#fff;font-size:16px;margin-left:4px"></i>
+                </div>
+              </div>
+              <div style="position:absolute;bottom:6px;left:6px;background:#FF0000;color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:3px">▶ YouTube</div>
+            </a>
             {% else %}
-            <video controls style="width:100%;border-radius:5px;margin-bottom:6px;max-height:160px;background:#000" poster="{{s.get_thumbnail}}">
+            <video controls style="width:100%;border-radius:6px;margin-bottom:6px;max-height:180px;background:#000" poster="{{s.get_thumbnail}}">
               <source src="{% if s.video_file %}{{s.video_file.url}}{% else %}{{s.video_url}}{% endif %}" type="video/mp4">
             </video>
             {% endif %}
