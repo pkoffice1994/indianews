@@ -257,3 +257,64 @@ def advertise_view(request):
         'site': SystemSetting.get_settings(),
         'ads': get_ads_context(),
     })
+
+
+def chatbot_api(request):
+    """Simple chatbot that answers news-related questions"""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST only'}, status=405)
+    
+    import json
+    data = json.loads(request.body)
+    question = data.get('message', '').strip()
+    
+    if not question:
+        return JsonResponse({'reply': 'Please ask a question!'})
+    
+    q_lower = question.lower()
+    
+    # Search news matching the question
+    from .models import News
+    news_qs = News.objects.filter(status='published')
+    
+    # Try to find relevant news
+    words = [w for w in q_lower.split() if len(w) > 3]
+    matched = None
+    for word in words:
+        results = news_qs.filter(
+            Q(title_hi__icontains=word) |
+            Q(title_en__icontains=word) |
+            Q(content_hi__icontains=word)
+        ).first()
+        if results:
+            matched = results
+            break
+    
+    if matched:
+        reply = f"📰 **{matched.title_hi}**\n\n{matched.summary_hi or matched.content_hi[:200]}...\n\n[Read more](/{matched.slug}/)"
+    else:
+        # General responses
+        if any(w in q_lower for w in ['hello', 'hi', 'hey', 'namaste', 'नमस्ते']):
+            reply = "नमस्ते! 🙏 मैं India News का AI Assistant हूं। आप मुझसे कोई भी खबर के बारे में पूछ सकते हैं!"
+        elif any(w in q_lower for w in ['latest', 'new', 'today', 'aaj', 'आज']):
+            latest = news_qs.order_by('-published_at').first()
+            if latest:
+                reply = f"📰 आज की ताज़ा खबर:\n\n**{latest.title_hi}**\n\n[पढ़ें](/{latest.slug}/)"
+            else:
+                reply = "अभी कोई खबर उपलब्ध नहीं है।"
+        elif any(w in q_lower for w in ['breaking', 'ब्रेकिंग']):
+            brk = news_qs.filter(is_breaking=True).first()
+            if brk:
+                reply = f"🔴 Breaking News:\n\n**{brk.title_hi}**\n\n[पढ़ें](/{brk.slug}/)"
+            else:
+                reply = "अभी कोई Breaking News नहीं है।"
+        elif any(w in q_lower for w in ['sport', 'cricket', 'ipl', 'खेल']):
+            sp = news_qs.filter(category__slug='khel').first()
+            reply = f"⚽ खेल खबर: **{sp.title_hi}**" if sp else "खेल की कोई खबर नहीं मिली।"
+        elif any(w in q_lower for w in ['weather', 'mausam', 'मौसम']):
+            reply = "🌤️ मौसम की जानकारी के लिए हमारा वेबसाइट देखें। ताज़ा मौसम अपडेट टॉपबार में दिखता है!"
+        else:
+            total = news_qs.count()
+            reply = f"मुझे '{question}' के बारे में कोई खबर नहीं मिली। आप और specific keyword try करें!\n\nहमारे पास अभी **{total}** खबरें हैं। 📰"
+    
+    return JsonResponse({'reply': reply})

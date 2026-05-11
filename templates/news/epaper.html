@@ -162,37 +162,35 @@ let isDragging = false;
 let dragStart  = {x:0, y:0, sl:0, st:0};
 
 function openEpaper(imgUrl, pdfUrl, title, date) {
-  const modal    = document.getElementById('epModal');
-  const wrap     = document.getElementById('epImgWrap');
-  const titleEl  = document.getElementById('epBarTitle');
-  const dlBtn    = document.getElementById('epDlBtn');
-  const minimap  = document.getElementById('epMinimap');
-  const mmImg    = document.getElementById('epMinimapImg');
-  const zoomBar  = document.getElementById('epZoomBar');
+  const modal   = document.getElementById('epModal');
+  const wrap    = document.getElementById('epImgWrap');
+  const titleEl = document.getElementById('epBarTitle');
+  const dlBtn   = document.getElementById('epDlBtn');
+  const minimap = document.getElementById('epMinimap');
+  const mmImg   = document.getElementById('epMinimapImg');
+  const zoomBar = document.getElementById('epZoomBar');
+  const vp      = document.getElementById('epViewport');
 
-  curImg = imgUrl || '';
-  isPdf  = pdfUrl && pdfUrl.toLowerCase().includes('.pdf');
   curZoom = 100;
-  document.getElementById('zoomLbl').textContent = '100%';
-
   titleEl.textContent = title + ' — ' + date;
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
 
-  if (isPdf) {
+  // Always try PDF first
+  let pdfEmbed = pdfUrl || '';
+  if (pdfEmbed && pdfEmbed.includes('drive.google.com')) {
+    // Ensure preview format
+    pdfEmbed = pdfEmbed.replace('/view?usp=share_link','').replace('/view','').replace('/preview','') + '/preview';
+  }
+
+  if (pdfEmbed) {
     wrap.innerHTML = '';
-    const vp = document.getElementById('epViewport');
     vp.classList.add('pdf-mode');
     wrap.style.padding = '0';
-    // Google Drive preview link works best - scroll page by page
-    let viewUrl = pdfUrl;
-    // Convert /view to /preview for Drive links
-    viewUrl = viewUrl.replace('/view?usp=share_link','./preview').replace('/view','./preview');
-    if (!viewUrl.includes('preview') && !viewUrl.includes('drive.google')) {
-      viewUrl = 'https://docs.google.com/viewer?url=' + encodeURIComponent(pdfUrl) + '&embedded=true';
-    }
-    wrap.innerHTML = '<iframe class="ep-iframe" id="pdfFrame" src="' + viewUrl + '" allowfullscreen allow="autoplay"></iframe>';
-    dlBtn.href = pdfUrl; dlBtn.style.display = 'inline-flex';
+    wrap.style.height = '100%';
+    wrap.innerHTML = `<iframe class="ep-iframe" src="${pdfEmbed}" allowfullscreen
+      style="width:100%;height:100%;border:none;display:block;background:#fff;"></iframe>`;
+    if(pdfUrl){dlBtn.href=pdfUrl;dlBtn.style.display='inline-flex';}
     minimap.style.display = 'none';
     zoomBar.style.display = 'none';
 
