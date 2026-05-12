@@ -158,7 +158,7 @@
         <img src="{{featured.0.get_image}}" alt="" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80'">
         <div class="featured-big-ov">
           {% if featured.0.category %}<span class="at-cat" style="margin-bottom:5px;">{{featured.0.category.name_en|default:featured.0.category.name}}</span>{% endif %}
-          <div class="featured-big-title" data-hi="{{featured.0.title_hi}}" data-en="{{featured.0.title_en|default:featured.0.title_hi}}">{{featured.0.title_hi}}</div>
+          <div class="featured-big-title">{% if lang == 'en' %}{{featured.0.title_en|default:featured.0.title_hi}}{% else %}{{featured.0.title_hi}}{% endif %}</div>
         </div>
       </a>
       <div>
@@ -167,7 +167,7 @@
           <img class="at-card-img" style="width:90px;height:65px;" src="{{n.get_image}}" alt="" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=300&q=80'">
           <div class="at-card-body">
             {% if n.category %}<div class="at-card-cat">{{n.category.name_en|default:n.category.name}}</div>{% endif %}
-            <div class="at-card-title" style="font-size:13px;" data-hi="{{n.title_hi}}" data-en="{{n.title_en|default:n.title_hi}}">{{n.title_hi}}</div>
+            <div class="at-card-title" style="font-size:13px;">{% if lang == 'en' %}{{n.title_en|default:n.title_hi}}{% else %}{{n.title_hi}}{% endif %}</div>
           </div>
         </a>
         {% endfor %}
@@ -193,8 +193,8 @@
             {% if n.category %}<span class="np-cat" style="background:{{n.category.color|default:'#e60026'}}">{{n.category.name_en|default:n.category.name}}</span>{% endif %}
             <span class="np-ago"><i class="far fa-clock"></i> {{n.published_at|timesince}}</span>
           </div>
-          <div class="np-title" data-hi="{{n.title_hi}}" data-en="{{n.title_en|default:n.title_hi}}">{{n.title_hi}}</div>
-          <div class="np-summary" data-hi="{{n.summary_hi|default:''|truncatechars:100}}" data-en="{{n.summary_en|default:n.summary_hi|default:''|truncatechars:100}}">{{n.summary_hi|default:''|truncatechars:100}}</div>
+          <div class="np-title">{% if lang == 'en' %}{{n.title_en|default:n.title_hi}}{% else %}{{n.title_hi}}{% endif %}</div>
+          <div class="np-summary">{% if lang == 'en' %}{{n.summary_en|default:n.summary_hi|default:''|truncatechars:100}}{% else %}{{n.summary_hi|default:''|truncatechars:100}}{% endif %}</div>
           <div class="np-footer">
             <span class="np-author"><i class="fas fa-user-edit"></i> {{n.author.get_full_name|default:"India News"}}</span>
             <span class="np-read">Read More →</span>
@@ -224,7 +224,7 @@
         <img class="at-card-img" src="{{n.get_image}}" alt="" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=300&q=80'">
         <div class="at-card-body">
           {% if n.category %}<div class="at-card-cat">{{n.category.name_en|default:n.category.name}}</div>{% endif %}
-          <div class="at-card-title" data-hi="{{n.title_hi}}" data-en="{{n.title_en|default:n.title_hi}}">{{n.title_hi}}</div>
+          <div class="at-card-title">{% if lang == 'en' %}{{n.title_en|default:n.title_hi}}{% else %}{{n.title_hi}}{% endif %}</div>
           <div class="at-card-meta"><i class="far fa-clock"></i> {{n.published_at|timesince}}</div>
         </div>
       </a>
@@ -240,7 +240,7 @@
       <a href="/{{n.slug}}/" class="vid-card">
         <img src="{{n.get_image}}" alt="" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&q=80'">
         <div class="vid-play"><i class="fas fa-play" style="color:#fff;font-size:11px;margin-left:2px"></i></div>
-        <div class="vid-title" data-hi="{{n.title_hi|truncatechars:45}}" data-en="{{n.title_en|default:n.title_hi|truncatechars:45}}">{{n.title_hi|truncatechars:45}}</div>
+        <div class="vid-title">{% if lang == 'en' %}{{n.title_en|default:n.title_hi|truncatechars:45}}{% else %}{{n.title_hi|truncatechars:45}}{% endif %}</div>
       </a>
       {% endfor %}
     </div>
@@ -271,7 +271,7 @@
         <a href="/{{n.slug}}/" class="sb-item">
           <div style="font-size:18px;font-weight:900;color:var(--red);width:22px;flex-shrink:0;text-align:center">{{forloop.counter}}</div>
           <div>
-            <div class="sb-ttl" data-hi="{{n.title_hi|truncatechars:60}}" data-en="{{n.title_en|default:n.title_hi|truncatechars:60}}">{{n.title_hi|truncatechars:60}}</div>
+            <div class="sb-ttl">{% if lang == 'en' %}{{n.title_en|default:n.title_hi|truncatechars:60}}{% else %}{{n.title_hi|truncatechars:60}}{% endif %}</div>
             <div class="sb-tm"><i class="far fa-eye"></i> {{n.views|default:0}} views</div>
           </div>
         </a>

@@ -26,6 +26,12 @@ def get_ads_context():
 
 
 def home(request):
+    # Language from URL param or session
+    lang = request.GET.get('lang', request.session.get('lang', 'hi'))
+    if lang not in ('hi', 'en'):
+        lang = 'hi'
+    request.session['lang'] = lang
+
     s = SystemSetting.get_settings()
     cats = Category.objects.filter(is_active=True, show_in_nav=True).order_by('order')
     pub  = News.objects.filter(status='published').select_related('category', 'author')
@@ -53,6 +59,7 @@ def home(request):
         'videos': videos, 'cat_sections': cat_sections,
         'epaper_latest': epaper, 'shorts': shorts, 'popular': popular,
         'ads': get_ads_context(),
+        'lang': lang,
     })
 
 
