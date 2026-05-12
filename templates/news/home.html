@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load ad_tags %}
-{% block title %}India News — {{ site.site_tagline_en }}{% endblock %}
+{% block title %}{% if lang == 'en' %}India News — Truth First, Always{% else %}इंडिया न्यूज़ — सच सबसे पहले{% endif %}{% endblock %}
 
 {% block breaking %}
 {% if breaking %}
@@ -8,7 +8,9 @@
   <div class="brk-label">🔴 Breaking</div>
   <div class="ticker-wrap">
     <div class="ticker-text">
-      {% for n in breaking %}{{ n.title_hi }} &nbsp;&nbsp;•&nbsp;&nbsp;{% endfor %}
+      {% for n in breaking %}
+        {% if lang == 'en' %}{{n.title_en|default:n.title_hi}}{% else %}{{n.title_hi}}{% endif %} &nbsp;•&nbsp;
+      {% endfor %}
     </div>
   </div>
 </div>
@@ -17,114 +19,107 @@
 
 {% block content %}
 <style>
-.lang-bar{background:#f7f7f7;border-bottom:1px solid #eee;}
-.lang-bar-in{max-width:1300px;margin:0 auto;display:flex;align-items:center;padding:0 12px;height:34px;}
-.lang-btn{padding:0 14px;height:34px;font-size:12px;font-weight:700;border:none;background:none;cursor:pointer;font-family:var(--hf);color:var(--mid);border-bottom:2px solid transparent;}
-.lang-btn.active{color:var(--red);border-bottom-color:var(--red);}
+/* ─── HERO ─── */
+.hero{position:relative;display:block;overflow:hidden;color:#fff;margin:0 -12px;}
+.hero img{width:100%;height:460px;object-fit:cover;display:block;}
+.hero-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.93) 0%,rgba(0,0,0,.2) 55%,transparent 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:20px 16px;}
+.hero-cat{display:inline-block;background:var(--red);color:#fff;font-size:10px;font-weight:800;padding:3px 10px;border-radius:2px;margin-bottom:8px;letter-spacing:.05em;text-transform:uppercase;}
+.hero-title{font-size:26px;font-weight:800;line-height:1.35;margin-bottom:10px;font-family:'Tiro Devanagari Hindi',serif;}
+.hero-meta{font-size:12px;color:rgba(255,255,255,.6);display:flex;gap:12px;flex-wrap:wrap;}
+.brk-tag{display:inline-block;background:var(--red);color:#fff;font-size:9px;font-weight:800;padding:2px 7px;border-radius:2px;margin-bottom:6px;letter-spacing:.08em;animation:blink 1.5s infinite;}
 
-.at-hero{position:relative;display:block;overflow:hidden;color:#fff;}
-.at-hero img{width:100%;height:420px;object-fit:cover;display:block;}
-.at-hero-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.92) 0%,rgba(0,0,0,.2) 55%,transparent 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:16px 14px;}
-.at-cat{display:inline-block;background:var(--red);color:#fff;font-size:10px;font-weight:800;padding:2px 8px;border-radius:2px;margin-bottom:6px;letter-spacing:.04em;text-transform:uppercase;}
-.at-hero-title{font-size:22px;font-weight:800;line-height:1.35;margin-bottom:8px;font-family:'Tiro Devanagari Hindi',serif;}
-.at-hero-meta{font-size:11px;color:rgba(255,255,255,.6);display:flex;gap:8px;}
-.at-card{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);color:var(--ink);align-items:flex-start;text-decoration:none;}
-.at-card:hover .at-card-title{color:var(--red);}
-.at-card-img{width:110px;height:78px;object-fit:cover;border-radius:5px;flex-shrink:0;}
-.at-card-body{flex:1;min-width:0;}
-.at-card-cat{font-size:10px;font-weight:700;color:var(--red);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;}
-.at-card-title{font-size:15px;font-weight:700;line-height:1.4;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;transition:color .2s;}
-.at-card-meta{font-size:11px;color:var(--mid);}
-.at-brk{display:inline-block;background:var(--red);color:#fff;font-size:9px;font-weight:800;padding:1px 5px;border-radius:2px;margin-right:4px;animation:blink 2s infinite;}
-.at-sec{display:flex;align-items:center;justify-content:space-between;padding:12px 0 8px;border-top:3px solid var(--red);margin-top:16px;}
-.at-sec h2{font-size:16px;font-weight:800;}
-.at-sec a{font-size:12px;color:var(--red);font-weight:600;}
-.vid-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px;}
-.vid-card{display:block;position:relative;border-radius:6px;overflow:hidden;color:#fff;}
-.vid-card img{width:100%;height:120px;object-fit:cover;display:block;}
-.vid-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.6);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;}
-.vid-title{position:absolute;bottom:0;left:0;right:0;padding:6px 8px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);font-size:11px;font-weight:600;line-height:1.3;}
-.mob-shorts{display:none;}
+/* ─── SECTION HEAD ─── */
+.s-head{display:flex;align-items:center;justify-content:space-between;padding:14px 0 10px;margin-top:4px;}
+.s-head-left{display:flex;align-items:center;gap:8px;}
+.s-head-left h2{font-size:17px;font-weight:800;color:var(--ink);}
+.s-head-line{width:4px;height:22px;background:var(--red);border-radius:2px;}
+.s-head a{font-size:12px;color:var(--red);font-weight:700;}
 
-/* Professional News List */
-.news-pro-list{display:flex;flex-direction:column;gap:0;}
-.np-card{display:grid;grid-template-columns:200px 1fr;background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px;color:var(--ink);transition:box-shadow .2s,transform .2s;text-decoration:none;}
-.np-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.1);transform:translateY(-2px);}
-.np-img-wrap{position:relative;overflow:hidden;height:140px;}
-.np-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .3s;}
-.np-card:hover .np-img-wrap img{transform:scale(1.05);}
-.np-live{position:absolute;top:8px;left:8px;background:#e60026;color:#fff;font-size:9px;font-weight:800;padding:2px 7px;border-radius:3px;animation:blink 1.5s infinite;}
-.np-time-badge{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.65);color:#fff;font-size:10px;padding:2px 6px;border-radius:3px;}
-.np-body{padding:14px 16px;display:flex;flex-direction:column;justify-content:space-between;gap:8px;}
-.np-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
-.np-cat{color:#fff;font-size:10px;font-weight:800;padding:2px 8px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em;}
-.np-ago{font-size:11px;color:var(--mid);}
-.np-title{font-size:16px;font-weight:700;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.np-summary{font-size:12px;color:var(--mid);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.np-footer{display:flex;align-items:center;justify-content:space-between;margin-top:4px;}
-.np-author{font-size:11px;color:var(--mid);}
-.np-read{font-size:12px;color:var(--red);font-weight:700;}
+/* ─── NEWS CARD (Aaj Tak list style) ─── */
+.nc{display:flex;gap:0;background:var(--white);border-radius:10px;overflow:hidden;margin-bottom:10px;border:1px solid var(--border);text-decoration:none;color:var(--ink);transition:box-shadow .2s,transform .15s;}
+.nc:hover{box-shadow:0 4px 18px rgba(0,0,0,.1);transform:translateY(-1px);}
+.nc-img{width:160px;min-height:115px;flex-shrink:0;position:relative;overflow:hidden;}
+.nc-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s;}
+.nc:hover .nc-img img{transform:scale(1.04);}
+.nc-live{position:absolute;top:6px;left:6px;background:var(--red);color:#fff;font-size:8px;font-weight:800;padding:2px 6px;border-radius:2px;animation:blink 1.5s infinite;}
+.nc-body{flex:1;padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;min-width:0;}
+.nc-top{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px;}
+.nc-cat{font-size:10px;font-weight:800;color:#fff;padding:2px 8px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;}
+.nc-time{font-size:11px;color:var(--mid);white-space:nowrap;}
+.nc-title{font-size:15px;font-weight:700;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:6px;}
+.nc-summary{font-size:12px;color:var(--mid);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:8px;}
+.nc-foot{display:flex;align-items:center;justify-content:space-between;}
+.nc-author{font-size:11px;color:var(--mid);}
+.nc-more{font-size:11px;color:var(--red);font-weight:700;}
 
-@media(max-width:640px){
-  .np-card{grid-template-columns:110px 1fr;}
-  .np-img-wrap{height:110px;}
-  .np-body{padding:10px 12px;}
-  .np-title{font-size:14px;}
-  .np-summary{display:none;}
-  .np-author{display:none;}
-}
+/* ─── FEATURED 2-COL ─── */
+.feat-grid{display:grid;grid-template-columns:1.55fr 1fr;gap:12px;margin-bottom:4px;}
+.feat-big{display:block;position:relative;border-radius:8px;overflow:hidden;color:#fff;}
+.feat-big img{width:100%;height:240px;object-fit:cover;display:block;}
+.feat-big-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.9),transparent 55%);display:flex;flex-direction:column;justify-content:flex-end;padding:14px;}
+.feat-big-title{font-size:16px;font-weight:700;line-height:1.35;}
+.feat-small{display:flex;flex-direction:column;gap:8px;}
+.fs-card{display:flex;gap:8px;background:var(--white);border:1px solid var(--border);border-radius:8px;overflow:hidden;text-decoration:none;color:var(--ink);transition:box-shadow .15s;}
+.fs-card:hover{box-shadow:0 3px 12px rgba(0,0,0,.08);}
+.fs-card img{width:80px;height:70px;object-fit:cover;flex-shrink:0;}
+.fs-card-body{padding:8px 8px 8px 0;flex:1;}
+.fs-cat{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;}
+.fs-title{font-size:12px;font-weight:700;line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
 
-/* Desktop sidebar */
+/* ─── VIDEO GRID ─── */
+.vid-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.vc{display:block;position:relative;border-radius:6px;overflow:hidden;color:#fff;}
+.vc img{width:100%;height:105px;object-fit:cover;display:block;}
+.vc-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.6);border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;}
+.vc-title{position:absolute;bottom:0;left:0;right:0;padding:5px 7px;background:linear-gradient(to top,rgba(0,0,0,.88),transparent);font-size:11px;font-weight:600;line-height:1.3;}
+
+/* ─── SHORT NEWS STRIP ─── */
+.mob-strip{display:none;overflow-x:auto;scrollbar-width:none;gap:8px;padding:8px 0;}
+.mob-strip::-webkit-scrollbar{display:none;}
+.ms-card{min-width:95px;max-width:95px;border-radius:6px;overflow:hidden;position:relative;flex-shrink:0;}
+.ms-card img{width:95px;height:145px;object-fit:cover;display:block;}
+.ms-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.82),transparent 50%);}
+.ms-title{position:absolute;bottom:5px;left:5px;right:5px;font-size:10px;font-weight:700;color:#fff;line-height:1.2;}
+
+/* ─── RESPONSIVE ─── */
 @media(min-width:641px){
   .main-grid{display:grid;grid-template-columns:1fr 300px;gap:20px;}
-  .at-hero img{height:400px;}
-  .at-hero-title{font-size:24px;}
-  .at-card-img{width:120px;height:85px;}
-  .featured-combo{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-bottom:14px;}
-  .featured-big{display:block;position:relative;border-radius:6px;overflow:hidden;color:#fff;}
-  .featured-big img{width:100%;height:220px;object-fit:cover;}
-  .featured-big-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.88),transparent 60%);display:flex;flex-direction:column;justify-content:flex-end;padding:12px;}
-  .featured-big-title{font-size:16px;font-weight:700;line-height:1.35;}
-  .vid-grid{grid-template-columns:repeat(4,1fr);}
-  .vid-card img{height:110px;}
+  .hero img{height:440px;}
+  .hero-title{font-size:28px;}
 }
-
-/* Mobile */
 @media(max-width:640px){
   .main-grid{display:block;}
-  .at-hero img{height:230px;}
-  .at-hero-title{font-size:17px;}
+  .hero img{height:235px;}
+  .hero-title{font-size:18px;}
   .sidebar-wrap{display:none;}
-  .featured-combo{display:none;}
-  .mob-shorts{display:flex;overflow-x:auto;scrollbar-width:none;gap:8px;padding:8px 0;margin:8px 0;}
-  .mob-shorts::-webkit-scrollbar{display:none;}
-  .mob-short{min-width:100px;max-width:100px;border-radius:6px;overflow:hidden;position:relative;flex-shrink:0;}
-  .mob-short img{width:100px;height:150px;object-fit:cover;display:block;}
-  .mob-short-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.8),transparent 50%);}
-  .mob-short-title{position:absolute;bottom:5px;left:5px;right:5px;font-size:10px;font-weight:700;color:#fff;line-height:1.2;}
-  .at-card-img{width:90px;height:66px;}
-  .at-card-title{font-size:14px;}
-  .at-sec h2{font-size:14px;}
+  .feat-grid{display:none;}
+  .mob-strip{display:flex;}
+  .nc-img{width:100px;min-height:90px;}
+  .nc-title{font-size:14px;}
+  .nc-summary,.nc-author{display:none;}
+  .nc-body{padding:10px 12px;}
   .vid-grid{grid-template-columns:repeat(2,1fr);}
+  .vc img{height:95px;}
+  .s-head-left h2{font-size:15px;}
+}
+@media(max-width:380px){
+  .nc-img{width:84px;}
+  .nc-title{font-size:13px;}
 }
 </style>
 
-
-
 <div style="max-width:1300px;margin:0 auto;padding:0 12px;">
 
-
-
-  <!-- Short videos row (mobile) -->
+  <!-- Mobile short strip -->
   {% if shorts %}
-  <div class="mob-shorts">
+  <div class="mob-strip">
     {% for s in shorts %}
-    <div class="mob-short">
-      {% if s.get_thumbnail %}<img src="{{s.get_thumbnail}}" alt="{{s.title}}" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=200&q=80'">
-      {% else %}<div style="width:100px;height:150px;background:linear-gradient(135deg,#e60026,#ff4d6d)"></div>{% endif %}
-      <div class="mob-short-ov"></div>
-      {% if s.has_video %}<div style="position:absolute;top:6px;left:6px;background:var(--red);color:#fff;font-size:8px;font-weight:800;padding:1px 5px;border-radius:2px;">▶</div>{% endif %}
-      <div class="mob-short-title">{{s.title|truncatechars:35}}</div>
+    <div class="ms-card">
+      {% if s.get_thumbnail %}<img src="{{s.get_thumbnail}}" alt="" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=200&q=80'">
+      {% else %}<div style="width:95px;height:145px;background:linear-gradient(135deg,#e60026,#ff4d6d)"></div>{% endif %}
+      <div class="ms-ov"></div>
+      {% if s.has_video %}<div style="position:absolute;top:5px;left:5px;background:var(--red);color:#fff;font-size:8px;font-weight:800;padding:1px 4px;border-radius:2px;">▶</div>{% endif %}
+      <div class="ms-title">{{s.title|truncatechars:32}}</div>
     </div>
     {% endfor %}
   </div>
@@ -134,40 +129,40 @@
   <div class="main-grid" style="align-items:start;">
   <div>
 
-    <!-- Hero -->
+    <!-- ── HERO ── -->
     {% if top_story %}
-    <a href="/{{top_story.slug}}/" class="at-hero" style="margin:0 -12px 0;display:block;">
-      <img src="{{top_story.get_image}}" alt="{{top_story.title_hi}}" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&q=80'">
-      <div class="at-hero-ov">
-        {% if top_story.is_breaking %}<span class="at-brk">🔴 BREAKING</span>{% endif %}
-        {% if top_story.category %}<span class="at-cat">{{top_story.category.name_en|default:top_story.category.name}}</span>{% endif %}
-        <div class="at-hero-title lang-hi">{{top_story.title_hi}}</div>
-        {% if top_story.title_en %}<div class="at-hero-title lang-en" style="display:none">{{top_story.title_en}}</div>{% endif %}
-        <div class="at-hero-meta">
+    <a href="/{{top_story.slug}}/" class="hero">
+      <img src="{{top_story.get_image}}" alt="" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&q=80'">
+      <div class="hero-ov">
+        {% if top_story.is_breaking %}<span class="brk-tag">🔴 BREAKING</span>{% endif %}
+        {% if top_story.category %}<span class="hero-cat">{{top_story.category.name_en|default:top_story.category.name}}</span>{% endif %}
+        <div class="hero-title">{% if lang == 'en' %}{{top_story.title_en|default:top_story.title_hi}}{% else %}{{top_story.title_hi}}{% endif %}</div>
+        <div class="hero-meta">
           <span><i class="far fa-clock"></i> {{top_story.published_at|timesince}} ago</span>
-          <span>•</span><span><i class="far fa-eye"></i> {{top_story.views}} views</span>
+          <span>•</span>
+          <span><i class="far fa-eye"></i> {{top_story.views}} views</span>
         </div>
       </div>
     </a>
     {% endif %}
 
-    <!-- Featured combo (desktop) -->
+    <!-- ── FEATURED ── -->
     {% if featured %}
-    <div class="featured-combo" style="margin-top:14px;">
-      <a href="/{{featured.0.slug}}/" class="featured-big">
+    <div class="feat-grid" style="margin-top:12px;">
+      <a href="/{{featured.0.slug}}/" class="feat-big">
         <img src="{{featured.0.get_image}}" alt="" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80'">
-        <div class="featured-big-ov">
-          {% if featured.0.category %}<span class="at-cat" style="margin-bottom:5px;">{{featured.0.category.name_en|default:featured.0.category.name}}</span>{% endif %}
-          <div class="featured-big-title">{% if lang == 'en' %}{{featured.0.title_en|default:featured.0.title_hi}}{% else %}{{featured.0.title_hi}}{% endif %}</div>
+        <div class="feat-big-ov">
+          {% if featured.0.category %}<span class="hero-cat" style="margin-bottom:5px;">{{featured.0.category.name_en|default:featured.0.category.name}}</span>{% endif %}
+          <div class="feat-big-title">{% if lang == 'en' %}{{featured.0.title_en|default:featured.0.title_hi}}{% else %}{{featured.0.title_hi}}{% endif %}</div>
         </div>
       </a>
-      <div>
+      <div class="feat-small">
         {% for n in featured|slice:"1:4" %}
-        <a href="/{{n.slug}}/" class="at-card" style="padding:8px 0;">
-          <img class="at-card-img" style="width:90px;height:65px;" src="{{n.get_image}}" alt="" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=300&q=80'">
-          <div class="at-card-body">
-            {% if n.category %}<div class="at-card-cat">{{n.category.name_en|default:n.category.name}}</div>{% endif %}
-            <div class="at-card-title" style="font-size:13px;">{% if lang == 'en' %}{{n.title_en|default:n.title_hi}}{% else %}{{n.title_hi}}{% endif %}</div>
+        <a href="/{{n.slug}}/" class="fs-card">
+          <img src="{{n.get_image}}" alt="" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=200&q=80'">
+          <div class="fs-card-body">
+            {% if n.category %}<div class="fs-cat" style="color:{{n.category.color|default:'#e60026'}}">{{n.category.name_en|default:n.category.name}}</div>{% endif %}
+            <div class="fs-title">{% if lang == 'en' %}{{n.title_en|default:n.title_hi}}{% else %}{{n.title_hi}}{% endif %}</div>
           </div>
         </a>
         {% endfor %}
@@ -177,70 +172,85 @@
 
     {% ad_slot 'home_top' 'Home Top Banner' %}
 
-    <!-- Latest news -->
-    <div class="at-sec"><h2>📰 Latest News</h2><a href="/search/">View All →</a></div>
-    <div class="news-pro-list">
-      {% for n in latest %}
-      <a href="/{{n.slug}}/" class="np-card" data-cat="{{n.category.slug|default:''}}">
-        <div class="np-img-wrap">
-          <img src="{{n.get_image}}" alt=""
-               onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=300&q=80'">
-          {% if n.is_breaking %}<span class="np-live">🔴 LIVE</span>{% endif %}
-          {% if n.read_time %}<span class="np-time-badge">📖 {{n.read_time}} min</span>{% endif %}
-        </div>
-        <div class="np-body">
-          <div class="np-top">
-            {% if n.category %}<span class="np-cat" style="background:{{n.category.color|default:'#e60026'}}">{{n.category.name_en|default:n.category.name}}</span>{% endif %}
-            <span class="np-ago"><i class="far fa-clock"></i> {{n.published_at|timesince}}</span>
-          </div>
-          <div class="np-title">{% if lang == 'en' %}{{n.title_en|default:n.title_hi}}{% else %}{{n.title_hi}}{% endif %}</div>
-          <div class="np-summary">{% if lang == 'en' %}{{n.summary_en|default:n.summary_hi|default:''|truncatechars:100}}{% else %}{{n.summary_hi|default:''|truncatechars:100}}{% endif %}</div>
-          <div class="np-footer">
-            <span class="np-author"><i class="fas fa-user-edit"></i> {{n.author.get_full_name|default:"India News"}}</span>
-            <span class="np-read">Read More →</span>
-          </div>
-        </div>
-      </a>
-      {% empty %}
-      <div style="text-align:center;padding:50px 20px;color:var(--mid)">
-        <div style="font-size:44px;margin-bottom:12px">📰</div>
-        <h3 style="font-size:17px;margin-bottom:8px">No articles yet</h3>
-        <a href="/admin/news/news/add/" style="display:inline-block;margin-top:12px;background:var(--red);color:#fff;padding:9px 20px;border-radius:4px;font-weight:700;font-size:13px">+ Add Article</a>
-      </div>
-      {% endfor %}
+    <!-- ── LATEST NEWS ── -->
+    <div class="s-head">
+      <div class="s-head-left"><div class="s-head-line"></div><h2>{% if lang == 'en' %}Latest News{% else %}ताज़ा खबरें{% endif %}</h2></div>
+      <a href="/search/">{% if lang == 'en' %}View All →{% else %}सभी देखें →{% endif %}</a>
     </div>
+
+    {% for n in latest %}
+    <a href="/{{n.slug}}/" class="nc" data-cat="{{n.category.slug|default:''}}">
+      <div class="nc-img">
+        <img src="{{n.get_image}}" alt="" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=300&q=80'">
+        {% if n.is_breaking %}<span class="nc-live">LIVE</span>{% endif %}
+      </div>
+      <div class="nc-body">
+        <div class="nc-top">
+          {% if n.category %}<span class="nc-cat" style="background:{{n.category.color|default:'#e60026'}}">{{n.category.name_en|default:n.category.name}}</span>{% endif %}
+          <span class="nc-time"><i class="far fa-clock"></i> {{n.published_at|timesince}}</span>
+        </div>
+        <div class="nc-title">{% if lang == 'en' %}{{n.title_en|default:n.title_hi}}{% else %}{{n.title_hi}}{% endif %}</div>
+        <div class="nc-summary">{% if lang == 'en' %}{{n.summary_en|default:n.summary_hi|default:''|truncatechars:110}}{% else %}{{n.summary_hi|default:''|truncatechars:110}}{% endif %}</div>
+        <div class="nc-foot">
+          <span class="nc-author"><i class="fas fa-user-edit"></i> {{n.author.get_full_name|default:"India News"}}</span>
+          <span class="nc-more">{% if lang == 'en' %}Read more →{% else %}पढ़ें →{% endif %}</span>
+        </div>
+      </div>
+    </a>
+    {% empty %}
+    <div style="text-align:center;padding:50px 20px;color:var(--mid);">
+      <div style="font-size:48px;margin-bottom:12px;">📰</div>
+      <h3 style="font-size:17px;margin-bottom:8px;">No articles yet</h3>
+      <a href="/admin/news/news/add/" style="background:var(--red);color:#fff;padding:9px 20px;border-radius:4px;font-weight:700;font-size:13px;">+ Add Article</a>
+    </div>
+    {% endfor %}
 
     {% ad_slot 'in_content' 'In-Content Ad' %}
 
-    <!-- Category sections -->
+    <!-- ── CATEGORY SECTIONS ── -->
     {% for sec in cat_sections %}
-    <div>
-      <div class="at-sec">
-        <h2 style="color:{% if sec.category %}{{sec.category.color}}{% else %}#e60026{% endif %}">{% if sec.category %}{{sec.category.name_en|default:sec.category.name}}{% endif %}</h2>
-        <a href="/category/{% if sec.category %}{{sec.category.slug}}{% endif %}/">View All →</a>
+    <div style="margin-top:8px;">
+      <div class="s-head">
+        <div class="s-head-left">
+          <div class="s-head-line" style="background:{% if sec.category %}{{sec.category.color}}{% else %}var(--red){% endif %}"></div>
+          <h2 style="color:{% if sec.category %}{{sec.category.color}}{% else %}var(--red){% endif %}">{% if sec.category %}{% if lang == 'en' %}{{sec.category.name_en|default:sec.category.name}}{% else %}{{sec.category.name}}{% endif %}{% endif %}</h2>
+        </div>
+        <a href="/category/{% if sec.category %}{{sec.category.slug}}{% endif %}/">{% if lang == 'en' %}View All →{% else %}सभी →{% endif %}</a>
       </div>
       {% for n in sec.news|slice:":4" %}
-      <a href="/{{n.slug}}/" class="at-card">
-        <img class="at-card-img" src="{{n.get_image}}" alt="" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=300&q=80'">
-        <div class="at-card-body">
-          {% if n.category %}<div class="at-card-cat">{{n.category.name_en|default:n.category.name}}</div>{% endif %}
-          <div class="at-card-title">{% if lang == 'en' %}{{n.title_en|default:n.title_hi}}{% else %}{{n.title_hi}}{% endif %}</div>
-          <div class="at-card-meta"><i class="far fa-clock"></i> {{n.published_at|timesince}}</div>
+      <a href="/{{n.slug}}/" class="nc">
+        <div class="nc-img">
+          <img src="{{n.get_image}}" alt="" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=300&q=80'">
+        </div>
+        <div class="nc-body">
+          <div class="nc-top">
+            {% if n.category %}<span class="nc-cat" style="background:{{n.category.color|default:'#e60026'}}">{{n.category.name_en|default:n.category.name}}</span>{% endif %}
+            <span class="nc-time"><i class="far fa-clock"></i> {{n.published_at|timesince}}</span>
+          </div>
+          <div class="nc-title">{% if lang == 'en' %}{{n.title_en|default:n.title_hi}}{% else %}{{n.title_hi}}{% endif %}</div>
+          <div class="nc-summary">{% if lang == 'en' %}{{n.summary_en|default:n.summary_hi|default:''|truncatechars:110}}{% else %}{{n.summary_hi|default:''|truncatechars:110}}{% endif %}</div>
+          <div class="nc-foot">
+            <span class="nc-author"><i class="fas fa-user-edit"></i> {{n.author.get_full_name|default:"India News"}}</span>
+            <span class="nc-more">{% if lang == 'en' %}Read more →{% else %}पढ़ें →{% endif %}</span>
+          </div>
         </div>
       </a>
       {% endfor %}
     </div>
     {% endfor %}
 
-    <!-- Videos -->
+    <!-- ── VIDEOS ── -->
     {% if videos %}
-    <div class="at-sec"><h2>📹 Video News</h2><a href="/videos/">View All →</a></div>
+    <div class="s-head" style="margin-top:8px;">
+      <div class="s-head-left"><div class="s-head-line"></div><h2>{% if lang == 'en' %}Video News{% else %}वीडियो खबरें{% endif %}</h2></div>
+      <a href="/videos/">{% if lang == 'en' %}View All →{% else %}सभी →{% endif %}</a>
+    </div>
     <div class="vid-grid">
       {% for n in videos %}
-      <a href="/{{n.slug}}/" class="vid-card">
+      <a href="/{{n.slug}}/" class="vc">
         <img src="{{n.get_image}}" alt="" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&q=80'">
-        <div class="vid-play"><i class="fas fa-play" style="color:#fff;font-size:11px;margin-left:2px"></i></div>
-        <div class="vid-title">{% if lang == 'en' %}{{n.title_en|default:n.title_hi|truncatechars:45}}{% else %}{{n.title_hi|truncatechars:45}}{% endif %}</div>
+        <div class="vc-play"><i class="fas fa-play" style="color:#fff;font-size:11px;margin-left:2px"></i></div>
+        <div class="vc-title">{% if lang == 'en' %}{{n.title_en|default:n.title_hi|truncatechars:45}}{% else %}{{n.title_hi|truncatechars:45}}{% endif %}</div>
       </a>
       {% endfor %}
     </div>
@@ -248,28 +258,28 @@
 
   </div>
 
-  <!-- SIDEBAR -->
+  <!-- ── SIDEBAR ── -->
   <aside class="sidebar-wrap">
     {% ad_slot 'sidebar_top' 'Sidebar Top (300×250)' %}
 
     {% if epaper_latest %}
     <div class="sb-card mb20">
-      <div class="sb-head dark">📰 Today's E-Paper</div>
-      <div class="sb-body" style="text-align:center">
-        <div style="background:linear-gradient(135deg,#e60026,#ff4d6d);border-radius:6px;height:120px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;font-size:40px">🗞</div>
-        <div style="font-weight:700;font-size:13px;margin-bottom:3px">{{epaper_latest.title}}</div>
-        <div style="font-size:11px;color:var(--mid);margin-bottom:10px">{{epaper_latest.publish_date}}</div>
-        <a href="/epaper/" style="display:block;background:var(--red);color:#fff;padding:8px;border-radius:4px;font-size:12px;font-weight:700"><i class="fas fa-file-pdf"></i> Read E-Paper</a>
+      <div class="sb-head dark">📰 {% if lang == 'en' %}Today's E-Paper{% else %}आज का ई-पेपर{% endif %}</div>
+      <div class="sb-body" style="text-align:center;">
+        <div style="background:linear-gradient(135deg,#e60026,#ff4d6d);border-radius:6px;height:120px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;font-size:40px;">🗞</div>
+        <div style="font-weight:700;font-size:13px;margin-bottom:3px;">{{epaper_latest.title}}</div>
+        <div style="font-size:11px;color:var(--mid);margin-bottom:10px;">{{epaper_latest.publish_date}}</div>
+        <a href="/epaper/" style="display:block;background:var(--red);color:#fff;padding:8px;border-radius:4px;font-size:12px;font-weight:700;"><i class="fas fa-file-pdf"></i> {% if lang == 'en' %}Read E-Paper{% else %}पढ़ें{% endif %}</a>
       </div>
     </div>
     {% endif %}
 
     <div class="sb-card mb20">
-      <div class="sb-head red">🔥 Most Popular</div>
+      <div class="sb-head red">🔥 {% if lang == 'en' %}Most Popular{% else %}सबसे ज़्यादा पढ़ी गई{% endif %}</div>
       <div class="sb-body">
         {% for n in popular %}
         <a href="/{{n.slug}}/" class="sb-item">
-          <div style="font-size:18px;font-weight:900;color:var(--red);width:22px;flex-shrink:0;text-align:center">{{forloop.counter}}</div>
+          <div style="font-size:18px;font-weight:900;color:var(--red);width:22px;flex-shrink:0;text-align:center;">{{forloop.counter}}</div>
           <div>
             <div class="sb-ttl">{% if lang == 'en' %}{{n.title_en|default:n.title_hi|truncatechars:60}}{% else %}{{n.title_hi|truncatechars:60}}{% endif %}</div>
             <div class="sb-tm"><i class="far fa-eye"></i> {{n.views|default:0}} views</div>
@@ -280,12 +290,12 @@
     </div>
 
     <div class="sb-card mb20">
-      <div class="sb-head dark">📂 Categories</div>
+      <div class="sb-head dark">📂 {% if lang == 'en' %}Categories{% else %}श्रेणियां{% endif %}</div>
       <div class="sb-body">
         {% for cat in nav_categories %}
         <a href="/category/{{cat.slug}}/" style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);color:var(--ink);font-size:13px;">
-          <span>{{cat.name_en|default:cat.name}}</span>
-          <span style="background:var(--red);color:#fff;font-size:10px;padding:1px 7px;border-radius:10px;font-weight:700">{{cat.news.count}}</span>
+          <span>{% if lang == 'en' %}{{cat.name_en|default:cat.name}}{% else %}{{cat.name}}{% endif %}</span>
+          <span style="background:var(--red);color:#fff;font-size:10px;padding:1px 7px;border-radius:10px;font-weight:700;">{{cat.news.count}}</span>
         </a>
         {% endfor %}
       </div>
@@ -294,31 +304,24 @@
     {% if shorts %}
     <div class="sb-card mb20">
       <div class="sb-head red">⚡ Short Videos</div>
-      <div class="sb-body" style="padding:8px">
+      <div class="sb-body" style="padding:8px;">
         {% for s in shorts %}
-        <div style="margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:10px">
-          {% if s.has_video %}
-            {% if s.is_youtube %}
-            <a href="{{s.video_url}}" target="_blank" style="display:block;position:relative;border-radius:6px;overflow:hidden;margin-bottom:6px;">
-              <img src="{{s.get_thumbnail}}" style="width:100%;height:120px;object-fit:cover;display:block;"
-                   onerror="this.src='https://i.ytimg.com/vi/pA4SbsCP1Yg/hqdefault.jpg'">
-              <div style="position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;">
-                <div style="width:48px;height:48px;background:#FF0000;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,.4)">
-                  <i class="fas fa-play" style="color:#fff;font-size:16px;margin-left:4px"></i>
-                </div>
+        <div style="margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:10px;">
+          {% if s.is_youtube %}
+          <a href="{{s.video_url}}" target="_blank" style="display:block;position:relative;border-radius:6px;overflow:hidden;margin-bottom:6px;">
+            <img src="{{s.get_thumbnail}}" style="width:100%;height:115px;object-fit:cover;display:block;" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=300&q=80'">
+            <div style="position:absolute;inset:0;background:rgba(0,0,0,.38);display:flex;align-items:center;justify-content:center;">
+              <div style="width:44px;height:44px;background:#FF0000;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-play" style="color:#fff;font-size:15px;margin-left:3px;"></i>
               </div>
-              <div style="position:absolute;bottom:6px;left:6px;background:#FF0000;color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:3px">▶ YouTube</div>
-            </a>
-            {% else %}
-            <video controls style="width:100%;border-radius:6px;margin-bottom:6px;max-height:180px;background:#000" poster="{{s.get_thumbnail}}">
-              <source src="{% if s.video_file %}{{s.video_file.url}}{% else %}{{s.video_url}}{% endif %}" type="video/mp4">
-            </video>
-            {% endif %}
+            </div>
+            <div style="position:absolute;bottom:5px;left:6px;background:#FF0000;color:#fff;font-size:9px;font-weight:800;padding:2px 5px;border-radius:2px;">▶ YT</div>
+          </a>
           {% elif s.get_thumbnail %}
-          <img src="{{s.get_thumbnail}}" style="width:100%;height:100px;object-fit:cover;border-radius:5px;margin-bottom:5px">
+          <img src="{{s.get_thumbnail}}" style="width:100%;height:100px;object-fit:cover;border-radius:5px;margin-bottom:5px;">
           {% endif %}
-          <div style="font-size:12px;font-weight:600;line-height:1.4;color:var(--ink)">
-            {% if s.has_video %}<span style="background:var(--red);color:#fff;font-size:9px;padding:1px 4px;border-radius:2px;margin-right:3px">▶</span>{% endif %}
+          <div style="font-size:12px;font-weight:600;line-height:1.4;color:var(--ink);">
+            {% if s.has_video %}<span style="background:var(--red);color:#fff;font-size:9px;padding:1px 4px;border-radius:2px;margin-right:3px;">▶</span>{% endif %}
             {{s.title}}
           </div>
         </div>
@@ -335,69 +338,12 @@
 </div>
 
 <script>
-let currentLang=localStorage.getItem('in_lang')||'hi';
-applyLang(currentLang);
-
-function setLang(lang){
-  currentLang=lang;
-  localStorage.setItem('in_lang',lang);
-  applyLang(lang);
-}
-function applyLang(lang){
-  document.querySelectorAll('.lang-hi').forEach(el=>el.style.display=lang==='hi'?'':'none');
-  document.querySelectorAll('.lang-en').forEach(el=>el.style.display=lang==='en'?'':'none');
-  const hi=document.getElementById('btnHI');
-  const en=document.getElementById('btnEN');
-  if(hi){hi.style.background=lang==='hi'?'var(--red)':'transparent';hi.style.color=lang==='hi'?'#fff':'var(--mid)';}
-  if(en){en.style.background=lang==='en'?'var(--red)':'transparent';en.style.color=lang==='en'?'#fff':'var(--mid)';}
-  // Fallback: if en empty, show hi
-  if(lang==='en'){
-    document.querySelectorAll('.lang-en').forEach(el=>{
-      if(!el.textContent.trim()){
-        el.style.display='none';
-        const hi=el.parentNode.querySelector('.lang-hi');
-        if(hi)hi.style.display='';
-      }
-    });
-  }
-}
-
 function filterCat(cat,el){
   document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
-  document.querySelectorAll('.at-card[data-cat]').forEach(card=>{
-    card.style.display=(cat==='all'||card.dataset.cat===cat)?'flex':'none';
+  document.querySelectorAll('.nc[data-cat]').forEach(c=>{
+    c.style.display=(cat==='all'||c.dataset.cat===cat)?'':'none';
   });
 }
-
-// Global lang toggle using data attributes
-function setLang(lang){
-  event && event.preventDefault && event.preventDefault();
-  event && event.stopPropagation && event.stopPropagation();
-  localStorage.setItem('in_lang', lang);
-  applyLang(lang);
-}
-
-function applyLang(lang){
-  // Update all data-hi/data-en elements
-  document.querySelectorAll('[data-hi]').forEach(el=>{
-    const txt = lang==='en' ? (el.dataset.en||el.dataset.hi) : el.dataset.hi;
-    if(txt) el.textContent = txt;
-  });
-  // Update nav categories
-  document.querySelectorAll('.lang-hi').forEach(el=>el.style.display=lang==='hi'?'':'none');
-  document.querySelectorAll('.lang-en').forEach(el=>el.style.display=lang==='en'?'':'none');
-  // Update topbar buttons
-  const hi=document.getElementById('topBtnHI');
-  const en=document.getElementById('topBtnEN');
-  if(hi){hi.style.background=lang==='hi'?'var(--red)':'transparent';hi.style.color=lang==='hi'?'#fff':'rgba(255,255,255,.7)';}
-  if(en){en.style.background=lang==='en'?'var(--red)':'transparent';en.style.color=lang==='en'?'#fff':'rgba(255,255,255,.7)';}
-}
-
-// Apply on load
-document.addEventListener('DOMContentLoaded', function(){
-  const lang = localStorage.getItem('in_lang') || 'hi';
-  applyLang(lang);
-});
 </script>
 {% endblock %}
