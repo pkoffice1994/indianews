@@ -327,3 +327,50 @@ def chatbot_api(request):
             reply = f"मुझे '{question}' के बारे में कोई खबर नहीं मिली। आप और specific keyword try करें!\n\nहमारे पास अभी **{total}** खबरें हैं। 📰"
     
     return JsonResponse({'reply': reply})
+
+
+from django.contrib.admin.views.decorators import staff_member_required
+
+@staff_member_required(login_url='/admin/login/')
+def epaper_publish_view(request):
+    """Quick E-Paper publish page for staff"""
+    from .models import EPaper
+    import datetime
+    success = False
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'publish':
+            title = request.POST.get('title', f"India News — {datetime.date.today().strftime('%d %B %Y')}")
+            edition = request.POST.get('edition', 'Delhi Edition')
+            pdf_url = request.POST.get('pdf_url', '').strip()
+            image_url = request.POST.get('image_url', '').strip()
+
+            # Convert Google Drive view URL to preview
+            if 'drive.google.com' in pdf_url:
+                base = pdf_url.split('/view')[0].split('/preview')[0]
+                pdf_url = base + '/preview'
+
+            EPaper.objects.update_or_create(
+                publish_date=datetime.date.today(),
+                defaults={
+                    'title': title,
+                    'edition': edition,
+                    'pdf_url': pdf_url,
+                    'image_url': image_url,
+                    'is_active': True,
+                }
+            )
+            success = True
+
+        elif action == 'delete':
+            ep_id = request.POST.get('ep_id')
+            EPaper.objects.filter(pk=ep_id).delete()
+
+    epapers = EPaper.objects.filter(is_active=True).order_by('-publish_date')[:10]
+    return render(request, 'news/epaper_publish.html', {
+        'epapers': epapers,
+        'success': success,
+        'site': SystemSetting.get_settings(),
+        'lang': 'hi',
+    })

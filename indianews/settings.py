@@ -93,6 +93,7 @@ JAZZMIN_SETTINGS = {
         {"name": "➕ Add News",    "url": "admin:news_news_add"},
         {"name": "⚡ Short News",  "url": "admin:news_shortnews_add"},
         {"name": "📰 E-Paper",     "url": "admin:news_epaper_add"},
+        {"name": "🗞 Publish E-Paper", "url": "/publish-epaper/"},
     ],
 
     "usermenu_links": [

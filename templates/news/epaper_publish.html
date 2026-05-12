@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Publish E-Paper — India News Admin{% endblock %}
+{% block content %}
+<div style="max-width:700px;margin:30px auto;padding:0 16px 60px;">
+
+<style>
+.ep-pub-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:28px;margin-bottom:20px;box-shadow:0 2px 10px rgba(0,0,0,.06);}
+.ep-pub-card h2{font-size:18px;font-weight:700;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px;}
+.ep-field{margin-bottom:16px;}
+.ep-field label{display:block;font-size:13px;font-weight:600;color:#333;margin-bottom:6px;}
+.ep-field input,.ep-field select,.ep-field textarea{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:6px;font-size:14px;font-family:var(--hf);background:#fafafa;color:var(--ink);outline:none;transition:border .2s;}
+.ep-field input:focus,.ep-field select:focus{border-color:var(--red);background:#fff;}
+.ep-field .hint{font-size:11px;color:#888;margin-top:4px;}
+.ep-btn{width:100%;padding:14px;background:var(--red);color:#fff;border:none;border-radius:6px;font-size:16px;font-weight:700;cursor:pointer;font-family:var(--hf);transition:background .2s;}
+.ep-btn:hover{background:#c00020;}
+.ep-success{background:#e8f5e9;border:1.5px solid #66bb6a;border-radius:8px;padding:20px;text-align:center;margin-bottom:20px;}
+.ep-success h3{color:#2e7d32;font-size:18px;margin-bottom:6px;}
+.ep-list{list-style:none;}
+.ep-list li{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.ep-list li:last-child{border-bottom:none;}
+.ep-del{background:#fee;color:#c00;border:none;border-radius:4px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;}
+.step-badge{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:var(--red);color:#fff;border-radius:50%;font-size:12px;font-weight:700;flex-shrink:0;}
+</style>
+
+{% if success %}
+<div class="ep-success">
+  <h3>✅ E-Paper Published!</h3>
+  <p style="color:#555;font-size:14px;">Today's E-Paper is now live on the website.</p>
+  <a href="/epaper/" style="display:inline-block;margin-top:10px;background:var(--red);color:#fff;padding:8px 20px;border-radius:5px;font-weight:700;font-size:13px;">View E-Paper →</a>
+</div>
+{% endif %}
+
+<!-- Quick Publish Form -->
+<div class="ep-pub-card">
+  <h2><span class="step-badge">1</span> Quick Publish Today's E-Paper</h2>
+  
+  <form method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="publish">
+    
+    <div class="ep-field">
+      <label>Edition Title</label>
+      <input type="text" name="title" value="India News — {% now 'd F Y' %}" required>
+    </div>
+    
+    <div class="ep-field">
+      <label>Edition</label>
+      <input type="text" name="edition" placeholder="e.g. Delhi Edition, Morning Edition" value="Delhi Edition">
+    </div>
+
+    <div class="ep-field">
+      <label>📎 Google Drive PDF Link</label>
+      <input type="url" name="pdf_url" placeholder="https://drive.google.com/file/d/XXXXX/preview">
+      <div class="hint">Google Drive → Share → Anyone with link → Copy link → Change /view to /preview</div>
+    </div>
+
+    <div class="ep-field">
+      <label>🖼️ Cover Image URL <span style="color:#888;font-weight:400">(optional — auto thumbnail)</span></label>
+      <input type="url" name="image_url" placeholder="https://... (imgbb.com pe upload karo)">
+      <div class="hint">imgbb.com pe newspaper photo upload karo → Direct Link copy karo</div>
+    </div>
+
+    <button type="submit" class="ep-btn">🗞️ Publish Today's E-Paper</button>
+  </form>
+</div>
+
+<!-- How to guide -->
+<div class="ep-pub-card">
+  <h2><span class="step-badge">2</span> Daily Workflow — 3 Steps</h2>
+  
+  <div style="display:flex;flex-direction:column;gap:16px;">
+    <div style="display:flex;gap:14px;align-items:flex-start;">
+      <div style="width:36px;height:36px;background:#e3f2fd;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">📸</div>
+      <div>
+        <div style="font-weight:700;font-size:14px;margin-bottom:3px;">Step 1 — Photo lo</div>
+        <div style="font-size:13px;color:#555;">Newspaper ka front page photo lo ya scan karo</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:14px;align-items:flex-start;">
+      <div style="width:36px;height:36px;background:#e8f5e9;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">☁️</div>
+      <div>
+        <div style="font-weight:700;font-size:14px;margin-bottom:3px;">Step 2 — Upload karo</div>
+        <div style="font-size:13px;color:#555;">
+          PDF → <a href="https://drive.google.com" target="_blank" style="color:var(--red)">Google Drive</a> pe upload → Share link copy karo<br>
+          Image → <a href="https://imgbb.com" target="_blank" style="color:var(--red)">imgbb.com</a> pe upload → Direct link copy karo
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:14px;align-items:flex-start;">
+      <div style="width:36px;height:36px;background:#fff3e0;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🚀</div>
+      <div>
+        <div style="font-weight:700;font-size:14px;margin-bottom:3px;">Step 3 — Publish karo</div>
+        <div style="font-size:13px;color:#555;">Upar form me links paste karo → Publish button dabao → Live! ✅</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Published E-Papers list -->
+<div class="ep-pub-card">
+  <h2><span class="step-badge">3</span> Published E-Papers</h2>
+  {% if epapers %}
+  <ul class="ep-list">
+    {% for ep in epapers %}
+    <li>
+      <div>
+        <div style="font-weight:600;font-size:13px;">{{ ep.title }}</div>
+        <div style="font-size:11px;color:#888;margin-top:2px;"><i class="far fa-calendar"></i> {{ ep.publish_date }} {% if ep.edition %}· {{ ep.edition }}{% endif %}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        {% if ep.get_pdf_url %}<a href="{{ ep.get_pdf_url }}" target="_blank" style="color:var(--red);font-size:12px;font-weight:600;">PDF ↗</a>{% endif %}
+        <form method="POST" style="margin:0" onsubmit="return confirm('Delete this E-Paper?')">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="delete">
+          <input type="hidden" name="ep_id" value="{{ ep.id }}">
+          <button type="submit" class="ep-del">Delete</button>
+        </form>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p style="color:#888;font-size:13px;text-align:center;padding:20px;">No E-Papers published yet.</p>
+  {% endif %}
+</div>
+
+</div>
+{% endblock %}
