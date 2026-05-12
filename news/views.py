@@ -88,6 +88,8 @@ def news_detail(request, slug):
 
 
 def category_view(request, slug):
+    lang = request.GET.get('lang', request.session.get('lang', 'hi'))
+    if lang in ('hi', 'en'): request.session['lang'] = lang
     cat     = get_object_or_404(Category, slug=slug, is_active=True)
     sub_slug = request.GET.get('sub')
     qs      = News.objects.filter(category=cat, status='published').order_by('-published_at')
@@ -111,6 +113,8 @@ def tag_view(request, slug):
 
 
 def search_view(request):
+    lang = request.GET.get('lang', request.session.get('lang', 'hi'))
+    if lang in ('hi', 'en'): request.session['lang'] = lang
     q = request.GET.get('q', '').strip()
     qs = News.objects.none()
     if q:
@@ -374,3 +378,11 @@ def epaper_publish_view(request):
         'site': SystemSetting.get_settings(),
         'lang': 'hi',
     })
+
+
+def lang_context_processor(request):
+    """Inject lang into every template"""
+    lang = request.session.get('lang', request.GET.get('lang', 'hi'))
+    if lang not in ('hi', 'en'):
+        lang = 'hi'
+    return {'lang': lang}

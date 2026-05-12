@@ -286,8 +286,8 @@ footer{background:#0a0a1a;color:rgba(255,255,255,.65);margin-top:40px;}
     <div class="topbar-r">
       <!-- Language Toggle in topbar -->
       <div style="display:flex;background:rgba(255,255,255,.1);border-radius:20px;overflow:hidden;flex-shrink:0;">
-        <a href="/?lang=hi" style="padding:3px 10px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:var(--hf);border-radius:20px;transition:all .2s;text-decoration:none;{% if lang == 'hi' or not lang %}background:var(--red);color:#fff;{% else %}background:transparent;color:rgba(255,255,255,.7);{% endif %}">हिंदी</a>
-        <a href="/?lang=en" style="padding:3px 10px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:var(--hf);border-radius:20px;transition:all .2s;text-decoration:none;{% if lang == 'en' %}background:var(--red);color:#fff;{% else %}background:transparent;color:rgba(255,255,255,.7);{% endif %}">EN</a>
+        <a href="?lang=hi" style="padding:3px 10px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:var(--hf);border-radius:20px;transition:all .2s;text-decoration:none;{% if lang == 'hi' or not lang %}background:var(--red);color:#fff;{% else %}background:transparent;color:rgba(255,255,255,.7);{% endif %}">हिंदी</a>
+        <a href="?lang=en" style="padding:3px 10px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:var(--hf);border-radius:20px;transition:all .2s;text-decoration:none;{% if lang == 'en' %}background:var(--red);color:#fff;{% else %}background:transparent;color:rgba(255,255,255,.7);{% endif %}">EN</a>
       </div>
       {% if site.enable_dark_mode %}
       <div class="dark-tog" onclick="toggleDark()">
@@ -354,8 +354,8 @@ footer{background:#0a0a1a;color:rgba(255,255,255,.65);margin-top:40px;}
     <a href="/videos/" class="nav-a vid {% if request.path == '/videos/' %}active{% endif %}"><i class="fas fa-play-circle" style="font-size:13px;color:#ff4d4d"></i> SHORT NEWS</a>
     <a href="/epaper/" class="nav-a {% if request.path == '/epaper/' %}active{% endif %}"><i class="fas fa-newspaper"></i> E-PAPER</a>
     {% for cat in nav_categories|slice:":8" %}
-    <a href="/category/{{ cat.slug }}/" class="nav-a {% if '/category/'|add:cat.slug|add:'/' in request.path %}active{% endif %}">
-      <span class="lang-hi">{{ cat.name }}</span><span class="lang-en" style="display:none">{{ cat.name_en|default:cat.name }}</span>
+    <a href="/category/{{ cat.slug }}/?lang={{ lang }}" class="nav-a {% if '/category/'|add:cat.slug|add:'/' in request.path %}active{% endif %}">
+      {% if lang == 'en' %}{{ cat.name_en|default:cat.name }}{% else %}{{ cat.name }}{% endif %}
     </a>
     {% endfor %}
   </div>
@@ -374,7 +374,9 @@ footer{background:#0a0a1a;color:rgba(255,255,255,.65);margin-top:40px;}
     <a href="/epaper/"><i class="fas fa-newspaper" style="width:20px"></i> E-Paper</a>
     <div class="nav-section-title">Categories</div>
     {% for cat in nav_categories %}
-    <a href="/category/{{ cat.slug }}/" class="{% if '/category/'|add:cat.slug|add:'/' in request.path %}active{% endif %}">{{ cat.name_en|default:cat.name }}</a>
+    <a href="/category/{{ cat.slug }}/?lang={{ lang }}" class="{% if '/category/'|add:cat.slug|add:'/' in request.path %}active{% endif %}">
+      {% if lang == 'en' %}{{ cat.name_en|default:cat.name }}{% else %}{{ cat.name }}{% endif %}
+    </a>
     {% endfor %}
     <div class="nav-section-title">More</div>
     <a href="/search/"><i class="fas fa-search" style="width:20px"></i> Search</a>
