@@ -270,17 +270,6 @@ footer{background:#0a0a1a;color:rgba(255,255,255,.65);margin-top:40px;}
 }
 </style>
 {% if site.header_scripts %}{{ site.header_scripts|safe }}{% endif %}
-<script>
-// Apply language IMMEDIATELY before DOM renders to prevent flash
-(function(){
-  var lang = localStorage.getItem('in_lang') || 'hi';
-  if(lang === 'en') {
-    document.write('<style>.lang-hi{display:none!important}.lang-en{display:block!important}</style>');
-  } else {
-    document.write('<style>.lang-en{display:none!important}.lang-hi{display:block!important}</style>');
-  }
-})();
-</script>
 </head>
 <body>
 
@@ -487,7 +476,12 @@ function setLang(lang){
 }
 
 function applyLangGlobal(lang){
-  // Toggle all lang elements
+  // data-hi/data-en elements (home page news cards)
+  document.querySelectorAll('[data-hi]').forEach(el=>{
+    const txt = lang==='en' ? (el.dataset.en||el.dataset.hi) : el.dataset.hi;
+    if(txt && txt.trim()) el.textContent = txt;
+  });
+  // lang-hi/lang-en class elements (nav categories etc)
   document.querySelectorAll('.lang-hi').forEach(el=>el.style.display=lang==='hi'?'':'none');
   document.querySelectorAll('.lang-en').forEach(el=>el.style.display=lang==='en'?'':'none');
   // Update topbar buttons
@@ -495,21 +489,6 @@ function applyLangGlobal(lang){
   const en=document.getElementById('topBtnEN');
   if(hi){hi.style.background=lang==='hi'?'var(--red)':'transparent';hi.style.color=lang==='hi'?'#fff':'rgba(255,255,255,.7)';}
   if(en){en.style.background=lang==='en'?'var(--red)':'transparent';en.style.color=lang==='en'?'#fff':'rgba(255,255,255,.7)';}
-  // Update home page buttons if exist
-  const h2=document.getElementById('btnHI');
-  const e2=document.getElementById('btnEN');
-  if(h2){h2.style.background=lang==='hi'?'var(--red)':'transparent';h2.style.color=lang==='hi'?'#fff':'var(--mid)';}
-  if(e2){e2.style.background=lang==='en'?'var(--red)':'transparent';e2.style.color=lang==='en'?'#fff':'var(--mid)';}
-  // Fallback: show hi if en empty
-  if(lang==='en'){
-    document.querySelectorAll('.lang-en').forEach(el=>{
-      if(!el.textContent.trim()){
-        el.style.display='none';
-        const hi=el.parentNode.querySelector('.lang-hi');
-        if(hi)hi.style.display='';
-      }
-    });
-  }
 }
 
 // Mobile nav
