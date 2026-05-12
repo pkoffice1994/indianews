@@ -131,7 +131,7 @@
 
     <!-- ── HERO ── -->
     {% if top_story %}
-    <a href="/{{top_story.slug}}/" class="hero">
+    <a href="/{{top_story.slug}}/?lang={{lang}}" class="hero">
       <img src="{{top_story.get_image}}" alt="" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&q=80'">
       <div class="hero-ov">
         {% if top_story.is_breaking %}<span class="brk-tag">🔴 BREAKING</span>{% endif %}
@@ -149,7 +149,7 @@
     <!-- ── FEATURED ── -->
     {% if featured %}
     <div class="feat-grid" style="margin-top:12px;">
-      <a href="/{{featured.0.slug}}/" class="feat-big">
+      <a href="/{{featured.0.slug}}/?lang={{lang}}" class="feat-big">
         <img src="{{featured.0.get_image}}" alt="" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80'">
         <div class="feat-big-ov">
           {% if featured.0.category %}<span class="hero-cat" style="margin-bottom:5px;">{{featured.0.category.name_en|default:featured.0.category.name}}</span>{% endif %}
@@ -158,7 +158,7 @@
       </a>
       <div class="feat-small">
         {% for n in featured|slice:"1:4" %}
-        <a href="/{{n.slug}}/" class="fs-card">
+        <a href="/{{n.slug}}/?lang={{lang}}" class="fs-card">
           <img src="{{n.get_image}}" alt="" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=200&q=80'">
           <div class="fs-card-body">
             {% if n.category %}<div class="fs-cat" style="color:{{n.category.color|default:'#e60026'}}">{{n.category.name_en|default:n.category.name}}</div>{% endif %}
@@ -179,7 +179,7 @@
     </div>
 
     {% for n in latest %}
-    <a href="/{{n.slug}}/" class="nc" data-cat="{{n.category.slug|default:''}}">
+    <a href="/{{n.slug}}/?lang={{lang}}" class="nc" data-cat="{{n.category.slug|default:''}}">
       <div class="nc-img">
         <img src="{{n.get_image}}" alt="" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=300&q=80'">
         {% if n.is_breaking %}<span class="nc-live">LIVE</span>{% endif %}
@@ -218,7 +218,7 @@
         <a href="/category/{% if sec.category %}{{sec.category.slug}}{% endif %}/">{% if lang == 'en' %}View All →{% else %}सभी →{% endif %}</a>
       </div>
       {% for n in sec.news|slice:":4" %}
-      <a href="/{{n.slug}}/" class="nc">
+      <a href="/{{n.slug}}/?lang={{lang}}" class="nc">
         <div class="nc-img">
           <img src="{{n.get_image}}" alt="" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=300&q=80'">
         </div>
@@ -239,21 +239,48 @@
     </div>
     {% endfor %}
 
-    <!-- ── VIDEOS ── -->
-    {% if videos %}
+    <!-- ── VIDEOS (Aaj Tak style) ── -->
+    {% if videos or shorts %}
     <div class="s-head" style="margin-top:8px;">
-      <div class="s-head-left"><div class="s-head-line"></div><h2>{% if lang == 'en' %}Video News{% else %}वीडियो खबरें{% endif %}</h2></div>
-      <a href="/videos/">{% if lang == 'en' %}View All →{% else %}सभी →{% endif %}</a>
+      <div class="s-head-left"><div class="s-head-line" style="background:#ff4d4d"></div><h2 style="color:#cc0000;">{% if lang == 'en' %}📹 Video News{% else %}📹 वीडियो न्यूज़{% endif %}</h2></div>
+      <a href="/videos/" style="color:#cc0000;">{% if lang == 'en' %}View All →{% else %}सभी →{% endif %}</a>
     </div>
+    <!-- Short Videos Row -->
+    {% if shorts %}
+    <div style="display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:8px;margin-bottom:12px;">
+      <style>.short-vid-card{min-width:140px;max-width:140px;border-radius:8px;overflow:hidden;position:relative;flex-shrink:0;background:#111;cursor:pointer;}
+      .short-vid-card img{width:140px;height:200px;object-fit:cover;display:block;}
+      .short-vid-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,transparent 50%);}
+      .short-vid-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;background:rgba(255,255,255,.85);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+      .short-vid-title{position:absolute;bottom:8px;left:7px;right:7px;font-size:11px;font-weight:700;color:#fff;line-height:1.3;}
+      </style>
+      {% for s in shorts %}
+      {% if s.is_youtube %}
+      <a href="{{s.video_url}}" target="_blank" class="short-vid-card">
+      {% else %}
+      <div class="short-vid-card">
+      {% endif %}
+        <img src="{{s.get_thumbnail}}" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=200&q=80'" alt="">
+        <div class="short-vid-ov"></div>
+        <div class="short-vid-play"><i class="fas fa-play" style="color:#e60026;font-size:13px;margin-left:2px;"></i></div>
+        {% if s.is_youtube %}<div style="position:absolute;top:6px;left:6px;background:#FF0000;color:#fff;font-size:8px;font-weight:800;padding:2px 5px;border-radius:2px;">▶ YT</div>{% endif %}
+        <div class="short-vid-title">{{s.title|truncatechars:40}}</div>
+      {% if s.is_youtube %}</a>{% else %}</div>{% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+    <!-- Regular Videos Grid -->
+    {% if videos %}
     <div class="vid-grid">
       {% for n in videos %}
-      <a href="/{{n.slug}}/" class="vc">
+      <a href="/{{n.slug}}/?lang={{lang}}" class="vc">
         <img src="{{n.get_image}}" alt="" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&q=80'">
         <div class="vc-play"><i class="fas fa-play" style="color:#fff;font-size:11px;margin-left:2px"></i></div>
         <div class="vc-title">{% if lang == 'en' %}{{n.title_en|default:n.title_hi|truncatechars:45}}{% else %}{{n.title_hi|truncatechars:45}}{% endif %}</div>
       </a>
       {% endfor %}
     </div>
+    {% endif %}
     {% endif %}
 
   </div>
@@ -278,7 +305,7 @@
       <div class="sb-head red">🔥 {% if lang == 'en' %}Most Popular{% else %}सबसे ज़्यादा पढ़ी गई{% endif %}</div>
       <div class="sb-body">
         {% for n in popular %}
-        <a href="/{{n.slug}}/" class="sb-item">
+        <a href="/{{n.slug}}/?lang={{lang}}" class="sb-item">
           <div style="font-size:18px;font-weight:900;color:var(--red);width:22px;flex-shrink:0;text-align:center;">{{forloop.counter}}</div>
           <div>
             <div class="sb-ttl">{% if lang == 'en' %}{{n.title_en|default:n.title_hi|truncatechars:60}}{% else %}{{n.title_hi|truncatechars:60}}{% endif %}</div>

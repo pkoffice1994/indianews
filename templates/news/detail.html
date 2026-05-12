@@ -19,7 +19,7 @@
 
       <h1 style="font-family:'Tiro Devanagari Hindi',serif;font-size:31px;font-weight:700;line-height:1.45;margin-bottom:14px;color:var(--ink)">
         {% if article.is_breaking %}<span class="brk-tag" style="font-size:10px;vertical-align:middle">Breaking</span> {% endif %}
-        {{ article.title_hi }}
+        {% if lang == 'en' %}{{article.title_en|default:article.title_hi}}{% else %}{{article.title_hi}}{% endif %}
       </h1>
 
       <!-- Meta -->
@@ -52,7 +52,7 @@
       <!-- Summary -->
       {% if article.summary_hi %}
       <div style="background:linear-gradient(135deg,#fff5f5,#fff8f8);border-left:4px solid var(--red);padding:14px 18px;border-radius:0 8px 8px 0;margin-bottom:22px;font-size:16px;font-weight:600;line-height:1.7;color:var(--ink)">
-        {{ article.summary_hi }}
+        {% if lang == "en" and article.summary_en %}{{ article.summary_en }}{% else %}{{ article.summary_hi }}{% endif %}
       </div>
       {% endif %}
 
@@ -65,7 +65,7 @@
 
       <!-- Content -->
       <div style="font-size:17px;line-height:1.9;color:var(--ink);font-family:'Tiro Devanagari Hindi',serif">
-        {{ article.content_hi|linebreaks }}
+        {% if lang == "en" and article.content_en %}{{ article.content_en|linebreaks }}{% else %}{{ article.content_hi|linebreaks }}{% endif %}
       </div>
 
       <!-- English content toggle -->
