@@ -7,3 +7,5 @@ dj-database-url==3.1.2
 Pillow==11.2.1
 django-jazzmin==3.0.1
 requests==2.32.3
+cloudinary==1.40.0
+django-cloudinary-storage==0.3.0
