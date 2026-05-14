@@ -297,6 +297,20 @@ class Command(BaseCommand):
     help = 'Add 10 bilingual news articles to the database'
 
     def handle(self, *args, **options):
+        # ── CLEANUP DUPLICATES FIRST ──────────────────────────────
+        from django.db.models import Count, Min
+        dupes = (News.objects.values('title_hi')
+                 .annotate(cnt=Count('id'), min_id=Min('id'))
+                 .filter(cnt__gt=1))
+        total_deleted = 0
+        for d in dupes:
+            deleted, _ = News.objects.filter(
+                title_hi=d['title_hi']
+            ).exclude(pk=d['min_id']).delete()
+            total_deleted += deleted
+        if total_deleted:
+            self.stdout.write(f'  🗑 Removed {total_deleted} duplicate articles')
+
         # Get or create admin user
         admin_user = User.objects.filter(is_superuser=True).first()
         if not admin_user:
