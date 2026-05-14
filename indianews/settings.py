@@ -19,8 +19,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'news',
-    'cloudinary',
-    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -65,12 +63,16 @@ else:
     }
 
 # ── CLOUDINARY (Image Storage) ──────────────────────────────
-import cloudinary
 CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL', '')
-if CLOUDINARY_URL:
-    import cloudinary.uploader
-    import cloudinary.api
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+if CLOUDINARY_URL and CLOUDINARY_URL.startswith('cloudinary://'):
+    try:
+        import cloudinary
+        import cloudinary.uploader
+        import cloudinary.api
+        INSTALLED_APPS += ['cloudinary', 'cloudinary_storage']
+        DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    except ImportError:
+        pass
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Kolkata'
