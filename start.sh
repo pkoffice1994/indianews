@@ -2,6 +2,8 @@
 echo "=== Running migrations ==="
 python manage.py makemigrations --no-input 2>/dev/null || true
 python manage.py migrate --run-syncdb --no-input
+echo "=== Cleaning duplicate news ==="
+python manage.py clean_duplicates
 echo "=== Adding news & epaper data ==="
 python manage.py create_staff --username editor --password "IndiaNews@2026" --email "editor@indianews.in" --name "Editor" 2>/dev/null || true
 python manage.py add_news

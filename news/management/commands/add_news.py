@@ -339,6 +339,11 @@ class Command(BaseCommand):
                 final_slug = f"{base_slug}-{n}"
                 n += 1
 
+            # Skip if news with same slug already exists
+            if News.objects.filter(slug=final_slug).exists():
+                self.stdout.write(f'  ⏭ Already exists: {item["title_hi"][:40]}')
+                continue
+
             news = News.objects.create(
                 title_hi=item['title_hi'],
                 title_en=item['title_en'],
@@ -421,3 +426,4 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(
             f'\n🎉 Done! {created} news articles added successfully!'
         ))
+
